@@ -135,3 +135,50 @@ INT_PTR CMainDlg::OnBuildDB(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
     return (INT_PTR)TRUE;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
+{
+    switch(message)
+    {
+        case WM_INITDIALOG:
+                return (INT_PTR)TRUE;
+            break;
+
+        case WM_PAINT:
+            {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hDlg, &ps);
+                Graphics g(hdc);
+
+                //Draw scenes if any
+                Instance().d3.DrawScenes(hDlg, g);
+
+                EndPaint(hDlg, &ps);
+                return (INT_PTR)TRUE;
+            }
+            break;
+
+        case WM_LBUTTONUP:
+            {
+                POINT pt = {LOWORD(lParam), HIWORD(lParam)};
+
+                Instance().d3.MoveToWindowPoint(hDlg, pt);
+            }
+            break;
+
+        case WM_CLOSE:
+            {
+                EndDialog(hDlg, 0);
+                Instance().m_hMapWnd = NULL;
+                return (INT_PTR)TRUE;	  
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return 0;
+}

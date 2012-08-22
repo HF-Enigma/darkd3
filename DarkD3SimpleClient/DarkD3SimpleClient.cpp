@@ -50,50 +50,6 @@ INT_PTR CALLBACK CMainDlg::DialogProcWrapper(HWND hDlg, UINT message, WPARAM wPa
     return 0;
 }
 
-INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
-{
-	switch(message)
-	{
-		case WM_INITDIALOG:
-			{
-				return (INT_PTR)TRUE;
-			}
-			break;
-
-		case WM_PAINT:
-			{
-				static HDC hdc;
-				PAINTSTRUCT ps;
-
-				hdc = BeginPaint(hDlg, &ps);
-
-				Graphics g(hdc);
-
-				//Draw scenes if any
-				Instance().d3.DrawScenes(hDlg, g);
-
-				EndPaint(hDlg, &ps);
-
-				return (INT_PTR)TRUE;
-			}
-			break;
-
-		case WM_CLOSE:
-			{
-				EndDialog(hDlg, 0);
-				Instance().m_hMapWnd = NULL;
-				return (INT_PTR)TRUE;	  
-			}
-			break;
-
-		default:
-			break;
-	}
-
-	return 0;
-}
-
-
 void CMainDlg::ShowError(LPTSTR lpszFunction,DWORD code) 
 { 
 	// Retrieve the system error message for the last-error code

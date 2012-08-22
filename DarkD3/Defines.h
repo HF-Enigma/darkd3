@@ -15,7 +15,7 @@
 #define AUC_BASE				0x00FC7560   //0x00FC75B0
 
 //Functions
-#define FUNC_USE_POWER			0x0097C810	//D3::UsePowerToLocation
+#define FUNC_USE_POWER			0x0097EF80  //0x0097C810	//D3::UsePowerToLocation
 #define FUNC_SELL_ITEM			0x00BBE880	//D3::ACD::SellItem
 
 //SNO offsets
@@ -46,13 +46,6 @@ extern DWORD ITER_STRUCT_BASE;
 	DWORD r = h; \
 	if(r != ERROR_SUCCESS) \
 		return r; \
-}
-
-//Sleep and decrement counter
-inline void SleepAndDecrement(DWORD& dwCounter, DWORD dwTime)
-{
-	dwCounter -= dwTime;
-	Sleep(dwTime);
 }
 
 #endif//_DEFINES_H_

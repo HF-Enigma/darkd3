@@ -103,7 +103,7 @@ void CGameManager::GoToNeighbor()
         std::vector<NavCell> cells;
 
         //Get plater cell
-        NavCell *pCell = pScene->GetPlayerCell(player.location());
+        NavCell *pCell = pScene->GetActorCell(player.location());
 
         //Get neighbor cells
         if(pCell)
@@ -247,6 +247,51 @@ DWORD CGameManager::Loot(float distance)
 	return ERROR_SUCCESS;
 }
 
+void CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
+{
+    RECT rc;
+    int width = 0;
+    vecScenes scenes;
+    Vec3 PosInWorld;
+
+    CGlobalData::Instance().RefreshOffsets();
+
+    if(amgr.GetPlayer(player) != ERROR_SUCCESS)
+        return;
+
+    smgr.EnumScenes(&scenes);
+
+    AABB bounds = smgr.GetScenesLimits();
+
+    GetWindowRect(hwnd, &rc);
+
+    width = rc.right - rc.left;
+
+    float mult = min((width - 5) / (bounds.Max.x - bounds.Min.x), (rc.bottom - rc.top - 5) / (bounds.Max.y - bounds.Min.y));
+
+    //Window coordinates to scene coordinates
+    PosInWorld.x = bounds.Min.x + (width - pt.x)/mult;
+    PosInWorld.y = bounds.Min.y + pt.y / mult;
+    PosInWorld.z = 0;
+
+    //Get scene containing point
+    CD3Scene *pScene = smgr.GetActorScene(PosInWorld);
+
+    if(pScene)
+    {
+        NavCell* pCell = pScene->GetActorCell(PosInWorld);
+
+        //Cell is walkable
+        if(pCell->Flag & NavCellFlagW_AllowWalk)
+        {
+            PosInWorld.z = (pCell->Max.z + pCell->Min.z) / 2;
+
+            player.ClickToMove(PosInWorld);
+        }
+    }
+}
+
+
 void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 {
 	RECT rc;
@@ -265,7 +310,7 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 	std::vector<NavCell> cells;
 
 	if(pScene)
-		NavCell* pCell = pScene->GetPlayerCell(player.location());
+		NavCell* pCell = pScene->GetActorCell(player.location());
 
 	AABB bounds = smgr.GetScenesLimits();
 

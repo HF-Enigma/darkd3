@@ -43,6 +43,7 @@ public:
     void SetQuest();
     void BuildSnoDB(std::string path);
     void EnterGame();
+    void MoveToWindowPoint( HWND hwnd, POINT &pt );
 private:
 	CSceneManager smgr;
 	CActorManager amgr;

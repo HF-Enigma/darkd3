@@ -25,7 +25,7 @@ public:
 			Pointer to found cell
 			NULL if not found
 	*/
-	NavCell* GetPlayerCell(Vec3 pos);
+	NavCell* GetActorCell(Vec3 pos);
 
 	/*
 		Get neighbor cells of selected one
