@@ -1,0 +1,6 @@
+TARGETNAME = apcdrv
+TARGETPATH = .
+TARGETTYPE = DRIVER
+
+SOURCES = apcdrv.c \
+		  apcdrv.rc
