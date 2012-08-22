@@ -141,7 +141,10 @@ struct UIComponent
 	DWORD click_handler;						// 0x54C
 	float pad_550[350];							// 0x550
 	DWORD text_ptr;								// 0xAC8
-	DWORD pad_ACC[136];							// 0xACC
+	DWORD pad_ACC[111];							// 0xACC
+	DWORD tb_length;							// 0xC88
+	DWORD tb_size;								// 0xC90
+	DWORD pad_AD8[22];							// 0xC94
 	DWORD cb_index;								// 0xCEC ComboBox index
 };
 

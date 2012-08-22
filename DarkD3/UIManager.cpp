@@ -35,14 +35,15 @@ DWORD CUIManager::EnumUI( mapUIElements *pOut /*= NULL*/, bool bVisibleOnly /*= 
 
 	m_Elements.clear();
 
-	CProcess::Instance().Core.Read(CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr);
-	CProcess::Instance().Core.Read((DWORD)uimgr.component_map, sizeof(comp_map), &comp_map);
+	CHK_RES(CProcess::Instance().Core.Read(CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)uimgr.component_map, sizeof(comp_map), &comp_map));
 
 	for(DWORD i = 0; i < comp_map.table_size; i++)
 	{
 		UIComponentMap::Pair pair;
 
-		CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)comp_map.table +  i*sizeof(UIComponentMap::Pair*)), sizeof(pair), &pair); 
+		if(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)comp_map.table +  i*sizeof(UIComponentMap::Pair*)), sizeof(pair), &pair) != ERROR_SUCCESS)
+			continue;
 
 		//Read linked list nodes
 		for(; pair.value;)
@@ -107,9 +108,8 @@ UIComponent* CUIManager::GetUIElementByHash(ULONGLONG hash)
 */
 UIComponent* CUIManager::GetUIElementByName(std::string name)
 {
-    for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
+	for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
 	{
-        //I'm too lazy to dig how strings are hashed, so this will be quite slow
 		if(strcmp(iter->second.self.name, name.c_str()) == 0)
 			return &iter->second;
 	}
@@ -135,13 +135,12 @@ DWORD CUIManager::GetUIElementByText( std::string text, std::map<ULONGLONG, UICo
 {
 	out.clear();
 
-    for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
+	for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
 	{
 		char data[128];
 
 		CProcess::Instance().Core.Read(iter->second.text_ptr, sizeof(data), data);
 
-        //Component text
 		if(strcmp(data, text.c_str()) == 0)
 			out[iter->first] = iter->second;
 	}
@@ -165,8 +164,7 @@ DWORD CUIManager::GetChildren( UIComponent& element, mapUIElements &out )
 {
 	out.clear();
 
-    //Get all elements whose parent is target element
-    for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
+	for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
 	{
 		if(element.self.hash == iter->second.parent.hash)
 			out[iter->first] = iter->second;
@@ -191,6 +189,11 @@ DWORD CUIManager::GetChildren( UIComponent& element, mapUIElements &out )
 DWORD CUIManager::SetText( UIComponent& element, std::string text )
 {
 	CProcess::Instance().Core.Write(element.text_ptr, text.length() + 1, (PVOID)text.c_str());
+	//CProcess::Instance().Core.Write<DWORD>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, tb_length), text.length());
+
+	element.tb_length = text.length();
+	CProcess::Instance().Core.Write(element.dwBaseAddr + 4, sizeof(element) - 4, (LPVOID)((BYTE*)&element + 4));
+
 
 	return ERROR_SUCCESS;
 }
@@ -240,6 +243,7 @@ DWORD CUIManager::SetVisible( UIComponent& element, bool bVisible /*= true*/ )
 
 	IN:
 		element - target component
+		bPushHash - call with hash as argument
 
 	OUT:
 		void
@@ -247,7 +251,7 @@ DWORD CUIManager::SetVisible( UIComponent& element, bool bVisible /*= true*/ )
 	RETURN:
 		Error code
 */
-DWORD CUIManager::ClickElement(UIComponent& element)
+DWORD CUIManager::ClickElement( UIComponent& element )
 {
 #if (RCALL_TYPE == USE_REMOTE_THD || RCALL_TYPE == USE_APC)
 	ds_utils::ds_memory::CDSWinDataBlock pCopy;
@@ -285,7 +289,7 @@ DWORD CUIManager::ClickElement(UIComponent& element)
 	call.state = CallState_Pending;
 	call.type = CallType_ClickUI;
 	call.arg1 = element.click_handler;
-    call.arg2 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
+	call.arg2 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
 
 	CProcess::Instance().shared.DoCall(call, ret);
 #else
@@ -388,3 +392,4 @@ codeend:
 
 	return ERROR_SUCCESS;
 }
+

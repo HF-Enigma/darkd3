@@ -113,7 +113,7 @@ void CD3DPresentDetour::HandleCall()
 */
 void CD3DPresentDetour::ClickUICall( const CALL& callparams, DWORD& retval )
 {
-	CallMethodAsm(NULL, m_pCallData->arg1, CC_thiscall_cdecl);
+	CallMethodAsm(NULL, m_pCallData->arg1, CC_cdecl, 1, callparams.arg2);
 }
 
 /*

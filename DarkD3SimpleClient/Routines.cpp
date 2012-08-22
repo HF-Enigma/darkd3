@@ -30,6 +30,8 @@ DWORD CGameManager::AttachToGame()
     CProcess::Instance().Attach(pid);
     CWindow::Instance().Attach(hWnd);
 
+	CSNOManager::Instance().LoadDB();
+
     return pid;
 }
 
@@ -176,8 +178,63 @@ bool CGameManager::OperateAH( vecAHItems &ahItems )
 	return true;
 }
 
+struct AttributeDesc 
+{ 
+	/* 0x00 */ int id; 
+	/* 0x04 */ int DefaultVal; // for when trying to get an attribute that doesn't exist in a FastAttributeGroup 
+	/* 0x08 */ int unk2; 
+	/* 0x0C */ int unk3; 
+	/* 0x10 */ int Type; // 0 = float, 1 = int 
+	/* 0x14 */ char* Formula1; 
+	/* 0x18 */ char* Formula2; 
+	/* 0x1C */ char* Name; 
+	/* 0x20 */ void* unk5; 
+	/* 0x24 */ int unk6; 
+}; 
+
+struct AttributeDescNamed
+{
+	AttributeDesc desk;
+	char name[64];
+};
+
+
+#include <DbgHelp.h>
+
 DWORD CGameManager::PwnMobs( float distance )
 {
+	/*DWORD dwAddr = 0x1520518;
+	AttributeDescNamed desknamed;
+	std::vector<ds_utils::CDSString> vecAttribs;
+
+	for(int i = 0; ;i++)
+	{
+		if(CProcess::Instance().Core.Read(dwAddr + i*sizeof(AttributeDesc), sizeof(desknamed.desk), &desknamed.desk) != ERROR_SUCCESS || 
+			desknamed.desk.Name == NULL || desknamed.desk.Name == (char*)INVALID_VALUE)
+		{
+			break;
+		}
+
+		CProcess::Instance().Core.Read((DWORD)desknamed.desk.Name, sizeof(desknamed.name), &desknamed.name);
+
+		//vecAttribs.push_back(desknamed);
+
+		ds_utils::CDSString strName, strType;//desknamed.name);
+
+		if(desknamed.desk.Type == 0)
+			strType = L"float";
+		else if(desknamed.desk.Type == 1)
+			strType = L"int";
+		else
+			strType = L"unknown";
+
+		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(desknamed.name).data(), desknamed.desk.id, strType.data());
+
+		OutputDebugStringW(strName.data());
+
+		vecAttribs.push_back(strName);
+	}*/
+
 	vecD3Actors mobs;
     std::vector<POWER> powers;
     std::map<AttributeID, ATTRIB_INFO> atbs;
@@ -210,7 +267,7 @@ DWORD CGameManager::PwnMobs( float distance )
 		}
 
 		amgr.GetPlayer(player);
-		player.UsePower(mobs[0], powers[0].id);
+		player.UsePower(player, Monk_MantraOfHealing);
 	}
 
 	return ERROR_SUCCESS;
@@ -282,11 +339,13 @@ void CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
         NavCell* pCell = pScene->GetActorCell(PosInWorld);
 
         //Cell is walkable
-        if(pCell->Flag & NavCellFlagW_AllowWalk)
+        if(pCell && pCell->Flag & NavCellFlagW_AllowWalk)
         {
             PosInWorld.z = (pCell->Max.z + pCell->Min.z) / 2;
 
             player.ClickToMove(PosInWorld);
+
+			InvalidateRect(hwnd, &rc, TRUE);
         }
     }
 }

@@ -28,6 +28,8 @@ DWORD CSceneManager::EnumScenes( vecScenes *pOut /*= NULL*/)
 
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Scenes, sizeof(tScenes), &tScenes));
 
+	m_Scenes.clear();
+
 	//Iterate through each scene
 	for(DWORD i = 0; i<= min(tScenes.Count, tScenes.Limit); i++)
 		m_Scenes.push_back(CD3Scene((DWORD)tScenes.List+ i*sizeof(SceneRaw)));		

@@ -137,7 +137,10 @@ DWORD CSNOManager::ParseMemorySNO( DWORD base, mapSNO& out )
 	DWORD dwPointer	= CProcess::Instance().Core.Read<DWORD>(dwMainOffset + SNO_DEF_PTR);
 
     //Loaded records count
-	DWORD dwCount = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_COUNT);									
+	DWORD dwCount = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_COUNT);
+
+	if(dwCount == INVALID_VALUE)
+		return ERROR_INVALID_ADDRESS;
 
 	DWORD SnoIndex = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_DEF_INDEX_OFF);
 	CProcess::Instance().Core.Read(dwPointer, sizeof(SNOName), SNOName);					

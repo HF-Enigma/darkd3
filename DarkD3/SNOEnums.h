@@ -130,9 +130,9 @@ enum SNOGroup : int
 //SNO location in memory
 enum SNOGroupOffset
 {
-	SNOGroup_Scene_Addr = 0x01595140,			//1.0.4
-	SNOGroup_StringList_Addr = 0x0158B7B8,		//1.0.4
-	SNOGroup_GameBalance_Addr = 0x01548FB8		//1.0.4
+	SNOGroup_Scene_Addr = 0x01595BC8,			//1.0.4
+	SNOGroup_StringList_Addr = 0x0158C240,		//1.0.4
+	SNOGroup_GameBalance_Addr = 0x01549A40		//1.0.4
 };
 
 enum SNOGBType

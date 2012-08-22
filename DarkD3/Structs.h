@@ -171,7 +171,7 @@ public:
 	ULONG id_acd;			// 0x004
 	CHAR Name[128];			// 0x008
 	ULONG id_sno;			// 0x088
-	UCHAR unknown_8C[4];    // 0x08C 
+	DWORD unknown_8C;		// 0x08C 
 	Vec3 Rot;				// 0x090 
 	float fUnk_Rot;			// 0x09C 
 	Vec3 Pos;				// 0x0A0
@@ -179,31 +179,31 @@ public:
 	Vec3 Pos1;				// 0x0B0 
 	float fUnk_734;			// 0x0BC 
 	Vec3 Pos2;				// 0x0C0 
-	UCHAR unknown_CC[4];    // 0x0CC 
+	DWORD unknown_CC;		// 0x0CC 
 	float RadiusDefault;    // 0x0D0 
-	UCHAR unknown_D4[4];    // 0x0D4 
+	DWORD unknown_D4;		// 0x0D4 
 	ULONG guid_world;		// 0x0D8 
 	ULONG guid_scene;		// 0x0DC 
-	UCHAR unknown_E0[32];   // 0x0E0 
+	DWORD unknown_E0[8];	// 0x0E0 
 	Vec3 Pos3;				// 0x100 
-	UCHAR unknown_10C[20];  // 0x10C 
-	ULONG unknown_120;		// 0x120
-	UCHAR unknown_124[28];	// 0x124
+	DWORD unknown_10C[5];	// 0x10C 
+	DWORD unknown_120;		// 0x120
+	DWORD unknown_124[7];	// 0x124
 	Vec3 Pos4;				// 0x140 
-	UCHAR unknown_14C[16];  // 0x14C 
-	ULONG N13E1EB50;		// 0x15C 
-	UCHAR unknown_160[176]; // 0x160 
+	DWORD unknown_14C[4];	// 0x14C 
+	DWORD N13E1EB50;		// 0x15C 
+	DWORD unknown_160[44];	// 0x160 
 	Vec3 PosObj;			// 0x210 
-	UCHAR unknown_21C[356]; // 0x21C 
+	DWORD unknown_21C[89];  // 0x21C 
 	CActorMovement* Mov;    // 0x380
 	float Direction;		// 0x384 
-	UCHAR unknown_388[24];  // 0x388 
+	DWORD unknown_388[6];   // 0x388 
 	Vec3 Vel;				// 0x3A0 
 	Vec3 Pos6;				// 0x3AC 
-	UCHAR unknown_3B8[96];  // 0x3B8 
+	DWORD unknown_3B8[24];  // 0x3B8 
 	ULONG Frame;			// 0x418 
 	ULONG Diff;				// 0x41C 
-	UCHAR unknown_420[8];   // 0x420 
+	DWORD unknown_420[2];   // 0x420 
 };
 
 //sizeof = 0x48
@@ -403,9 +403,9 @@ struct tObData
 	UCHAR unknown_0[4];     // 0x000 
 	ULONG id_acd;			// 0x004 
 	ULONG id_actor;			// 0x008 
-	DWORD unknown_C[45];    // 0x00C 
+	DWORD unknown_C[32];    // 0x00C 
 	ObSkill skills[6];		// 0x0BC
-	DWORD unknown_132[131];	// 0x104 
+	DWORD unknown_132[144];	// 0x104 
 }; 
 
 //sizeof = 0x298

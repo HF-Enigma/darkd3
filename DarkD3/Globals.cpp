@@ -120,7 +120,7 @@ void CGlobalData::InitAttribs()
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Experience_Granted, CActorAttribute("Experience_Granted", AttributeType_int)));
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Experience_Next, CActorAttribute("Experience_Next", AttributeType_int)));
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Gold_Granted, CActorAttribute("Gold_Granted", AttributeType_int)));
-		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Attrib_Gold, CActorAttribute("Attrib_Gold", AttributeType_int)));
+		//Attributes.insert(std::pair<AttributeID, CActorAttribute>(Attrib_Gold, CActorAttribute("Attrib_Gold", AttributeType_int)));
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Gold_Find, CActorAttribute("Gold_Find", AttributeType_float)));
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Level, CActorAttribute("Level", AttributeType_int)));
 		Attributes.insert(std::pair<AttributeID, CActorAttribute>(Level_Cap, CActorAttribute("Level_Cap", AttributeType_int)));

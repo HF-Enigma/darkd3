@@ -188,7 +188,8 @@ DWORD CActorManager::LinkActors()
 	{
 		for (DWORD j = 0; j< m_ACDs.size(); j++)
 		{
-			if(m_RActors[i].guid() != INVALID_VALUE && m_RActors[i].guid() == m_ACDs[j].guid())
+			if((m_RActors[i].RActor.id_acd != INVALID_VALUE && m_RActors[i].RActor.id_acd == m_ACDs[j].ACD.id_acd) ||
+				m_RActors[i].RActor.id_actor == m_ACDs[j].ACD.id_actor)
 			{
 				//Link objects with same guid
 				memcpy(&m_RActors[i].ACD, &m_ACDs[j].ACD, sizeof(CACD));
