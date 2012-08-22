@@ -212,8 +212,8 @@ DWORD CD3Actor::GetAllAttribs( std::map<AttributeID, ATTRIB_INFO> &out )
 	CAttribFormula				formula;
 	tAttribLink					link;
 
-	CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.AttribGroups, sizeof(container), &container);
-	CProcess::Instance().Core.Read((DWORD)container.FastAttribGroups, sizeof(attribs), &attribs);
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.AttribGroups, sizeof(container), &container));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)container.FastAttribGroups, sizeof(attribs), &attribs));
 
 	if(ACD.id_attrib == (DWORD)INVALID_VALUE || GetAttribGroup(&attribs, ACD.id_attrib, group) != ERROR_SUCCESS)
 		return ERROR_INVALID_PARAMETER;

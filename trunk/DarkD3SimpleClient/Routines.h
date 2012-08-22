@@ -11,11 +11,11 @@
 #include "../DarkD3/SNOManager.h"
 
 
-#define HASH_LOGIN_FIELD	0x0
-#define HASH_PASS_FIELD		0x0
-#define HASH_LOGIN_BTN		0x0
+#define HASH_LOGIN_FIELD	0xde8625fccffdfc28
+#define HASH_PASS_FIELD		0xba2d3316b4bb4104
+#define HASH_LOGIN_BTN		0x50893593b5db22a9
 #define HASH_AH_BTN			0xC66282304743ECB4
-#define HASH_EQUIP_BTN		0x0
+#define HASH_EQUIP_BTN		0x85fe1f4a7c2a9a9c
 #define HASH_SEARCH_BTN		0x0
 #define HASH_CH_QUEST_BTN	0x0
 #define HASH_DIFF_BOX		0x0

@@ -21,7 +21,7 @@ INT_PTR CMainDlg::OnInit(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         TCHAR szText[255];
         
         StringCbPrintf(szText, sizeof(szText), _T("Attached to process %d"), pid);
-        SendMessage(m_hStatusBar, SB_SETTEXT, MAKEWORD(1, SBT_NOBORDERS), (LPARAM)szText);
+        SendMessage(m_hStatusBar, SB_SETTEXT, MAKEWORD(0, SBT_NOBORDERS), (LPARAM)szText);
     }
 
     return (INT_PTR)TRUE;
@@ -140,6 +140,9 @@ INT_PTR CMainDlg::OnBuildDB(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
 {
+	HDC hdc;
+	PAINTSTRUCT ps;
+
     switch(message)
     {
         case WM_INITDIALOG:
@@ -148,17 +151,24 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 
         case WM_PAINT:
             {
-                PAINTSTRUCT ps;
-                HDC hdc = BeginPaint(hDlg, &ps);
-                Graphics g(hdc);
+                hdc = BeginPaint(hDlg, &ps);
+                Graphics g(hDlg);
 
-                //Draw scenes if any
-                Instance().d3.DrawScenes(hDlg, g);
+				Instance().d3.DrawScenes(hDlg, g);
 
                 EndPaint(hDlg, &ps);
                 return (INT_PTR)TRUE;
             }
             break;
+
+		case WM_SIZE:
+			{
+				RECT rc;
+
+				GetWindowRect(hDlg, &rc);
+				InvalidateRect(hDlg, &rc, FALSE);
+			}
+			break;
 
         case WM_LBUTTONUP:
             {
