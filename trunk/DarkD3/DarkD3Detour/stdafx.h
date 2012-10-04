@@ -3,14 +3,16 @@
 // are changed infrequently
 //
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#ifndef _STDAFX_DETOUR_H_
+#define _STDAFX_DETOUR_H_
 
 #include "targetver.h"
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #endif
+
+#define D3D_DEBUG_INFO
 
 #pragma warning(disable : 4995 4005)
 
@@ -40,4 +42,4 @@
 #define DLLIMPORT __declspec(dllimport)
 #endif
 
-#endif//_STDAFX_H_
+#endif//_STDAFX_DETOUR_H_

@@ -17,6 +17,7 @@ enum CallType
 {
 	CallType_Unknown = 0,
 	CallType_ClickUI,
+	CallType_ClickSQUI,
 	CallType_UsePower,
 	CallType_SellItem
 };

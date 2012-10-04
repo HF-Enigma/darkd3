@@ -3,8 +3,12 @@
 
 #include "stdafx.h"
 
+
 namespace ds_utils
 {
+	/*
+		WARNING. Completely NOT thread safe
+	*/
     namespace ds_memory
     {
             DSUTILS_API void                    CleanUp();

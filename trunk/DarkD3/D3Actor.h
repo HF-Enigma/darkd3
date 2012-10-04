@@ -10,16 +10,12 @@
 //D3 Actor class
 class CD3Actor
 {
+	friend class CActorManager;
+
 public:
 	CD3Actor(void);
 	CD3Actor(DWORD dwBase, Vec3* playerpos = NULL, bool bACD = true);
 	~CD3Actor(void);
-
-	/*
-		Set actor linked flag
-		Indicates actor having both RActor and ACD structs
-	*/
-	void SetLinkFlag(bool bSet = true);	
 
 	/*
 		Get actor int attribute
@@ -179,7 +175,8 @@ protected:
 	DWORD		GetAttribRaw(BYTE val[4], AttributeID attrib, DWORD param = 0xFFFFF000);
 
 protected:
-	DWORD		m_dwBaseAddr;		//Actor base address
+	DWORD		m_dwBaseRact;		//RActor base address
+	DWORD		m_dwBaseACD;		//ACD base address
 	bool		m_bLinked;			//Indicates that actor has both structs (ACD and RActor) after linking
 	Vec3		m_pos;				//Actor world position
 	float		m_dist;				//Distance from player

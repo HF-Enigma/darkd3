@@ -121,7 +121,7 @@ DWORD CProcess::RemoteCall( PVOID pCode, DWORD size)
 
 	ResumeThread(hThread);
 
-	WaitForSingleObject(hThread, INFINITE);
+	WaitForSingleObject(hThread, 500);
 
 	ResumeThread(Core.m_hMainThd);
 #elif(RCALL_TYPE == USE_APC)
@@ -287,4 +287,38 @@ DWORD CProcess::QueueUserAPCEx(PAPCFUNC pfnApc, HANDLE hThread, DWORD dwData)
 	ResumeThread(hThread);
 
 	return ERROR_SUCCESS;
+}
+
+//////////////////////////// Debug functions ////////////////////////////
+
+void CProcess::EnumAttribList()
+{
+	DWORD dwAddr = 0x1520518;
+
+	AttributeDesc desk;
+	char sszName[64];
+
+	for(int i = 0; ;i++)
+	{
+		if(CProcess::Instance().Core.Read(dwAddr + i*sizeof(AttributeDesc), sizeof(desk), &desk) != ERROR_SUCCESS || 
+			desk.Name == NULL || desk.Name == (char*)INVALID_VALUE)
+		{
+			break;
+		}
+
+		CProcess::Instance().Core.Read((DWORD)desk.Name, sizeof(sszName), &sszName);
+
+		ds_utils::CDSString strName, strType;
+
+		if(desk.Type == 0)
+			strType = L"float";
+		else if(desk.Type == 1)
+			strType = L"int";
+		else
+			strType = L"unknown";
+
+		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(sszName).data(), desk.id, strType.data());
+
+		OutputDebugStringW(strName.data());
+	}
 }

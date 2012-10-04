@@ -59,7 +59,7 @@ CD3Scene::~CD3Scene()
 		Pointer to found cell
 		NULL if not found
 */
-NavCell* CD3Scene::GetActorCell(Vec3 pos)
+NavCell* CD3Scene::GetCellByCoords(Vec3 pos)
 {
 	Vec3 pos_offset;
 

@@ -1,7 +1,7 @@
 #include "D3Actor.h"
 
 CD3Actor::CD3Actor(void):
-	m_dwBaseAddr(0),
+	m_dwBaseRact(0),
 	m_dwGUID(0),
 	m_dist(0),
 	m_bLinked(false),
@@ -11,6 +11,8 @@ CD3Actor::CD3Actor(void):
 {
 	RtlZeroMemory(&RActor, sizeof(RActor));
 	RtlZeroMemory(&ACD, sizeof(ACD));
+	RtlZeroMemory(&ActorSNO, sizeof(ActorSNO));
+	RtlZeroMemory(&ItemSNO, sizeof(ItemSNO));
 }
 
 CD3Actor::CD3Actor( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD/*= true*/ ):
@@ -24,14 +26,15 @@ CD3Actor::CD3Actor( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD/*= true*
 
 	RtlZeroMemory(&RActor, sizeof(RActor));
 	RtlZeroMemory(&ACD, sizeof(ACD));
-
-	m_dwBaseAddr = dwBase;
+	RtlZeroMemory(&ActorSNO, sizeof(ActorSNO));
+	RtlZeroMemory(&ItemSNO, sizeof(ItemSNO));
 
 	//Actor is based on ACD
 	if(bACD)
 	{
 		CProcess::Instance().Core.Read(dwBase, sizeof(ACD), &ACD);
 
+		m_dwBaseACD = dwBase;
 		m_dwGUID	= ACD.id_acd;
 		SnoID		= ACD.id_sno;
 		m_Name		= ACD.name;
@@ -45,6 +48,7 @@ CD3Actor::CD3Actor( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD/*= true*
 	{
 		CProcess::Instance().Core.Read(dwBase, sizeof(RActor), &RActor);
 
+		m_dwBaseRact= dwBase;
 		m_dwGUID	= RActor.id_acd;
 		SnoID		= RActor.id_sno;
 		m_Name		= RActor.Name;
@@ -98,7 +102,7 @@ DWORD CD3Actor::Sell()
 	call.valid = VALID_CALL;
 	call.type = CallType_SellItem;
 	call.state = CallState_Pending;
-	call.arg1 = m_dwBaseAddr;
+	call.arg1 = m_dwBaseRact;
 
 	CProcess::Instance().shared.DoCall(call, ret);
 
@@ -345,15 +349,6 @@ float CD3Actor::PointDistanceSquare( Vec3 p1, Vec3 p2 )
 	return dx*dx + dy*dy + dz*dz;
 }
 
-/*
-	Set actor linked flag
-	Indicates actor having both RActor and ACD structs
-*/
-void CD3Actor::SetLinkFlag( bool bSet /*= true*/ )
-{
-	m_bLinked = bSet;
-}
-
 
 /*
 	Return actor GUID
@@ -368,7 +363,7 @@ DWORD CD3Actor::guid()
 */
 DWORD CD3Actor::base()
 {
-	return m_dwBaseAddr;
+	return m_dwBaseRact;
 }
 
 

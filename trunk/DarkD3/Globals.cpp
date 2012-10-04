@@ -1,8 +1,6 @@
 #include "Defines.h"
 #include "Globals.h"
 
-DWORD ITER_STRUCT_BASE	= 0;
-
 /*
 	Get singleton instance
 */
@@ -19,13 +17,6 @@ CGlobalData& CGlobalData::Instance()
 void CGlobalData::RefreshOffsets()
 {
 	CMemCore::Instance().Read(CMemCore::Instance().Read<DWORD>(OBJECT_MGR_BASE), sizeof(ObMan), &ObjMgr);
-
-	ITER_STRUCT_BASE = CMemCore::Instance().Read<DWORD>(INTERACT_BASE);
-	ITER_STRUCT_BASE = CMemCore::Instance().Read<DWORD>(ITER_STRUCT_BASE);
-	ITER_STRUCT_BASE = CMemCore::Instance().Read<DWORD>(ITER_STRUCT_BASE);	
-	ITER_STRUCT_BASE = CMemCore::Instance().Read<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_OFF1);	
-
-	ITER_STRUCT_BASE+= ITER_STRUCT_OFF2;
 
 	InitAttribs();
 }
@@ -55,6 +46,40 @@ DWORD CGlobalData::HashStringLC( std::string str )
 
 	return hash;
 }
+
+
+/*
+	DEBUG
+	Search for DWORD value in structure
+
+	IN:
+		pData - start of data
+		size - data size
+		val - value to seek
+
+	OUT:
+		offsets - found offsets
+
+	RETURN:
+		Error code
+			
+*/
+DWORD CGlobalData::SeekDWORD( DWORD* pData, int size, DWORD val, std::vector<DWORD> &offsets )
+{
+	DWORD dwBase = (DWORD)pData;
+
+	if(pData && size > 0 && size % 4 == 0)
+	{
+		for(; (int)pData < (int)dwBase + size; pData++ )
+			if(*pData && *pData == val)
+				offsets.push_back((DWORD)pData - dwBase);
+
+		return ERROR_SUCCESS;
+	}
+	else
+		return ERROR_INVALID_PARAMETER;
+}
+
 
 /*
 	Init attributes map

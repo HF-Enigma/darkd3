@@ -95,6 +95,24 @@ public:
 	*/
 	DWORD HashStringLC(std::string str);
 
+	/*
+		DEBUG
+		Search for DWORD value in structure
+
+		IN:
+			pData - start of data
+			size - data size
+			val - value to seek
+
+		OUT:
+			offsets - found offsets
+
+		RETURN:
+			Error code
+				
+	*/
+	DWORD SeekDWORD(DWORD* pData, int size, DWORD val, std::vector<DWORD> &offsets);
+
 public:
 	mapAttribs	Attributes;		//Attributes map
 	ObMan		ObjMgr;			//Object manager instance

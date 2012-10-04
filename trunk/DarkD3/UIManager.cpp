@@ -30,6 +30,14 @@ CUIManager& CUIManager::Instance()
 */
 DWORD CUIManager::EnumUI( mapUIElements *pOut /*= NULL*/, bool bVisibleOnly /*= false*/ )
 {
+	CHK_RES(EnumUIElements(pOut, bVisibleOnly));
+	//CHK_RES(EnumUIHandlers(NULL));
+
+	return ERROR_SUCCESS;
+}
+
+DWORD CUIManager::EnumUIElements( mapUIElements *pOut /*= NULL*/, bool bVisibleOnly /*= false*/ )
+{
 	UIManager uimgr;
 	UIComponentMap comp_map;
 
@@ -55,7 +63,10 @@ DWORD CUIManager::EnumUI( mapUIElements *pOut /*= NULL*/, bool bVisibleOnly /*= 
 			element.dwBaseAddr = (DWORD)pair.value;
 
 			if(!bVisibleOnly || (bVisibleOnly && element.visible) )
+			{	
+				//if(element.click_handler != 0)
 				m_Elements[element.self.hash] = element;
+			}
 
 			if(CProcess::Instance().Core.Read((DWORD)pair.next, sizeof(pair), &pair) != ERROR_SUCCESS)
 				break;
@@ -67,6 +78,46 @@ DWORD CUIManager::EnumUI( mapUIElements *pOut /*= NULL*/, bool bVisibleOnly /*= 
 
 	return ERROR_SUCCESS;
 }
+
+
+DWORD CUIManager::EnumUIHandlers( mapUIHandlers *pOut /*= NULL*/ )
+{
+	UIManager uimgr;
+	UIHandlerMap handler_map;
+
+	m_Handlers.clear();
+
+	CHK_RES(CProcess::Instance().Core.Read(CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)uimgr.handler_map, sizeof(handler_map), &handler_map));
+
+	for(DWORD i = 0; i < handler_map.table_size; i++)
+	{
+		UIHandlerMap::Pair pair;
+
+		if(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)handler_map.table +  i*sizeof(UIHandlerMap::Pair*)), sizeof(pair), &pair) != ERROR_SUCCESS)
+			continue;
+
+		//Read linked list nodes
+		for(; pair.value;)
+		{
+			UIHandler handler;
+
+			CProcess::Instance().Core.Read((DWORD)pair.value, sizeof(handler), &handler); 
+
+			m_Handlers[handler.hash] = handler;
+
+			if(CProcess::Instance().Core.Read((DWORD)pair.next, sizeof(pair), &pair) != ERROR_SUCCESS)
+				break;
+		}
+	}
+
+	if(pOut)
+		*pOut = m_Handlers;
+
+	return ERROR_SUCCESS;
+}
+
+
 
 /*
 	Get component by hash.
@@ -118,6 +169,30 @@ UIComponent* CUIManager::GetUIElementByName(std::string name)
 }
 
 /*
+	DEBUG
+	Get UI element with name containing string
+*/
+DWORD CUIManager::NameMatch( std::string name, mapUIElements &out )
+{
+	out.clear();
+
+	for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
+	{
+		std::string current = iter->second.self.name;
+
+		if( current.find(name.c_str()) != current.npos)
+		{
+			out[iter->second.self.hash] = iter->second;
+
+			OutputDebugStringA(iter->second.self.name);
+			OutputDebugStringA("\r\n");
+		}
+	}
+
+	return NULL;
+}
+
+/*
 	Get components by text.
 	Call only after EnumUI.
 
@@ -138,10 +213,13 @@ DWORD CUIManager::GetUIElementByText( std::string text, std::map<ULONGLONG, UICo
 	for(mapUIElements::iterator iter = m_Elements.begin(); iter != m_Elements.end(); iter++)
 	{
 		char data[128];
+		std::string strText;
 
 		CProcess::Instance().Core.Read(iter->second.text_ptr, sizeof(data), data);
 
-		if(strcmp(data, text.c_str()) == 0)
+		strText = data;
+
+		if(strText.find(text.c_str()) != strText.npos )
 			out[iter->first] = iter->second;
 	}
 
@@ -189,11 +267,7 @@ DWORD CUIManager::GetChildren( UIComponent& element, mapUIElements &out )
 DWORD CUIManager::SetText( UIComponent& element, std::string text )
 {
 	CProcess::Instance().Core.Write(element.text_ptr, text.length() + 1, (PVOID)text.c_str());
-	//CProcess::Instance().Core.Write<DWORD>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, tb_length), text.length());
-
-	element.tb_length = text.length();
-	CProcess::Instance().Core.Write(element.dwBaseAddr + 4, sizeof(element) - 4, (LPVOID)((BYTE*)&element + 4));
-
+	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, tb_length), text.length());
 
 	return ERROR_SUCCESS;
 }
@@ -213,9 +287,41 @@ DWORD CUIManager::SetText( UIComponent& element, std::string text )
 */
 DWORD CUIManager::SetCBIndex( UIComponent& element, int index )
 {
-	CProcess::Instance().Core.Write<int>(element.cb_index, index);
+	mapUIElements children;
 
-	return ERROR_SUCCESS;
+	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index), index);
+	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index2), index);
+
+	GetChildren(element, children);
+
+	if(children.empty())
+		return ERROR_INVALID_PARAMETER;
+
+	for(mapUIElements::iterator iter = children.begin(); iter != children.end(); iter++)
+	{
+		std::string strName = iter->second.self.name;
+
+		if(strName.rfind(".arrow") != strName.npos)
+		{
+			ClickElement(iter->second);
+			EnumUIElements();
+
+			ds_utils::CDSString strListItem;
+
+			strListItem.format(L"Root.TopLayer.DropDown._content._stackpanel._item%d", index);
+
+			UIComponent* pListItem = CUIManager::Instance().GetUIElementByName(strListItem.data_mb());
+
+			if(pListItem)
+				ClickSPElement(*pListItem);
+			else
+				return ERROR_INVALID_PARAMETER;
+	
+			return ERROR_SUCCESS;
+		}
+	}
+
+	return ERROR_INVALID_PARAMETER;
 }
 
 /*
@@ -243,7 +349,6 @@ DWORD CUIManager::SetVisible( UIComponent& element, bool bVisible /*= true*/ )
 
 	IN:
 		element - target component
-		bPushHash - call with hash as argument
 
 	OUT:
 		void
@@ -255,7 +360,7 @@ DWORD CUIManager::ClickElement( UIComponent& element )
 {
 #if (RCALL_TYPE == USE_REMOTE_THD || RCALL_TYPE == USE_APC)
 	ds_utils::ds_memory::CDSWinDataBlock pCopy;
-	void* pFuncData = 0;
+	void* pFuncData = 0, *pRemoteData;
 	DWORD dwFuncSize;
 	int index = 0;
 	
@@ -264,20 +369,39 @@ DWORD CUIManager::ClickElement( UIComponent& element )
 #else
 	ClickCallWrapperAPC(&pFuncData, &dwFuncSize);
 #endif
-
 	pCopy.Allocate(dwFuncSize);
 
 	memcpy(pCopy, pFuncData, dwFuncSize);
 
+	UIEvent evnt;
+
+	memset(&evnt, 0x00, sizeof(evnt));
+
+	CProcess::Instance().Core.Allocate(sizeof(UIEvent) + 4, pRemoteData);
+
+	evnt.type = UIEvent::LeftMouseUp;
+	evnt.x = 169;
+	evnt.y = 361;
+
+	CProcess::Instance().Core.Write<UIEvent>((DWORD)pRemoteData, evnt);
+	CProcess::Instance().Core.Write<DWORD>((DWORD)pRemoteData + sizeof(evnt), 1);
+
+	DWORD dwReplacement[2] = {element.dwBaseAddr + FIELD_OFFSET(UIComponent, self), element.click_handler};
+
+	//Replace stubs with proper addresses
 	for(DWORD i = 0; i < dwFuncSize; i++)
 	{
 		if(((DWORD*)(&((BYTE*)pCopy)[i]))[0] == 0xDEADBEEF)
 		{
-			memcpy(&((BYTE*)pCopy)[i], &element.click_handler, sizeof(DWORD));
-			break;
+			memcpy(&((BYTE*)pCopy)[i], &dwReplacement[index], sizeof(DWORD));
+			index++;
+
+			if(index >= ARRAYSIZE(dwReplacement))
+				break;
 		}
 	}
 
+	CProcess::Instance().Core.Write(CGlobalData::Instance().ObjMgr.Storage.ui_mgr + FIELD_OFFSET(UIManager, u_1), sizeof(UIReference), &element.self);
 	CProcess::Instance().RemoteCall(pCopy, dwFuncSize);
 
 #elif(RCALL_TYPE == USE_DLL)
@@ -298,6 +422,42 @@ DWORD CUIManager::ClickElement( UIComponent& element )
 #endif
 
 	return ERROR_SUCCESS;
+}
+
+/*
+	Simulate click on StackPanel element
+
+	IN:
+		element - target component
+
+	OUT:
+		void
+
+	RETURN:
+		Error code
+*/
+DWORD CUIManager::ClickSPElement( UIComponent& element )
+{
+#if(RCALL_TYPE == USE_DLL)
+
+	CALL call = {0};
+	CALL_RET ret = {0};
+
+	call.valid = VALID_CALL;
+	call.state = CallState_Pending;
+	call.type = CallType_ClickSQUI;
+	call.arg1 = element.dwBaseAddr + 0xC78;
+	call.arg2 = element.click_handler;
+	call.arg3 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
+
+	CProcess::Instance().shared.DoCall(call, ret);
+
+	return ERROR_SUCCESS;
+
+#else
+	return	ERROR_NOT_SUPPORTED;
+
+#endif
 }
 
 /*
@@ -331,8 +491,15 @@ DWORD CUIManager::ClickCallWrapper( void** FuncData, DWORD* pdwSize )
 		jmp codeend
 
 	start: 
+		push 0xDEADBEEF
 		mov eax, 0xDEADBEEF
 		call eax
+		add esp, 4
+
+		/*push 0x1530780
+		mov eax, 0x941A80
+		call eax
+		add esp, 4*/
 
 		mov ecx, 64
 		mov edi, fs:[18h]
@@ -384,8 +551,10 @@ DWORD CUIManager::ClickCallWrapperAPC( void** FuncData, DWORD* pdwSize )
 		jmp codeend
 
 start: 
+		push 0xDEADBEEF
 		mov eax, 0xDEADBEEF
 		call eax
+		add esp, 4
 		ret 4
 codeend:
 	}

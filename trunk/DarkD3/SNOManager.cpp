@@ -22,10 +22,23 @@ CSNOManager& CSNOManager::Instance()
 */
 DWORD CSNOManager::InitDB()
 {
-	CHK_RES(ParseMemorySNO(SNOGroup_Scene_Addr, Scenes));
+	CHK_RES(RefreshSNOMemRecords());
 
 	BuildNameDB();
 	BuildItemsDB();
+
+	return ERROR_SUCCESS;
+}
+
+/*
+	Get latest SNO records available from memory
+
+	RETURN:
+		Error code
+*/
+DWORD CSNOManager::RefreshSNOMemRecords()
+{
+	CHK_RES(ParseMemorySNO(SNOGroup_Scene_Addr, Scenes));
 
 	return ERROR_SUCCESS;
 }
@@ -145,8 +158,6 @@ DWORD CSNOManager::ParseMemorySNO( DWORD base, mapSNO& out )
 	DWORD SnoIndex = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_DEF_INDEX_OFF);
 	CProcess::Instance().Core.Read(dwPointer, sizeof(SNOName), SNOName);					
 	DWORD IndexOffset = SnoIndex + 0xC;											
-
-	out.clear();
 
 	//Iterating through all records
 	for(DWORD i = 0; i<dwCount; i++)
