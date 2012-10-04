@@ -137,15 +137,23 @@ struct UIComponent
 	DWORD addr_child1;							// 0x460
 	DWORD pad_464[32];							// 0x464
 	DWORD flag1;								// 0x4E4
-	float pad_4E8[25];							// 0x4E8
+	float pad_4E8[8];							// 0x4E8
+	UIRect rect;								// 0x508
+	float pad_518[13];							// 0x518
 	DWORD click_handler;						// 0x54C
-	float pad_550[350];							// 0x550
+	DWORD pad_550[3];							// 0x550
+	DWORD mouse_over;							// 0x55C
+	float pad_560[346];							// 0x560
 	DWORD text_ptr;								// 0xAC8
-	DWORD pad_ACC[111];							// 0xACC
+	DWORD pad_ACC[107];							// 0xACC
+	DWORD val_C78;								// 0xC78
+	DWORD pad_C7C[3];							// 0xC7C
 	DWORD tb_length;							// 0xC88
 	DWORD tb_size;								// 0xC90
-	DWORD pad_AD8[22];							// 0xC94
-	DWORD cb_index;								// 0xCEC ComboBox index
+	DWORD pad_AD8[23];							// 0xC94
+	DWORD cb_index;								// 0xCEC
+	DWORD pad_CF0[100];							// 0xCF0
+	DWORD cb_index2;							// 0xE80
 };
 
 struct UIContainer
@@ -184,7 +192,7 @@ struct UIManager
 	UIComponentMap *component_map;
 	void *u_0;
 	UIReference u_1[6];
-	void *u_2[1688];
+	DWORD u_2[1688];
 	UIHandlerMap *handler_map;
 };
 

@@ -75,6 +75,15 @@ public:
 	*/
 	DWORD BuildDBFromFile(std::string strMPQfile, float *pProgress = NULL);
 
+	
+	/*
+		Get latest SNO records available from memory
+
+		RETURN:
+			Error code
+	*/
+	DWORD RefreshSNOMemRecords();
+
 	/*
 		Read serialized data records
 
@@ -153,7 +162,6 @@ private:
 			Error code
 	*/
 	DWORD SaveDB();
-
 private:
 	bool m_bInitialized;			//Database initialized
 };

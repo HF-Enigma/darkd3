@@ -9,6 +9,7 @@
 #include "DSMemory/DSWinDataBlock.h"
 
 typedef std::map<ULONGLONG, UIComponent> mapUIElements;
+typedef std::map<ULONGLONG, UIHandler> mapUIHandlers;
 
 #define CHAT_MSG_SIZE			0x1018
 #define UI_OPTIONS_BTN_HASH		0x8eabe558c441b3a1
@@ -38,6 +39,10 @@ public:
 
 	*/
 	DWORD EnumUI(mapUIElements *pOut = NULL, bool bVisibleOnly = false);
+
+	DWORD EnumUIElements( mapUIElements *pOut = NULL, bool bVisibleOnly = false );
+
+	DWORD EnumUIHandlers( mapUIHandlers *pOut = NULL);
 
 	/*
 		Get component by hash.
@@ -90,6 +95,12 @@ public:
 	DWORD GetUIElementByText(std::string text, std::map<ULONGLONG, UIComponent> &out);
 
 	/*
+		DEBUG
+		Print UI elements with name containing string
+	*/
+	DWORD NameMatch(std::string name, mapUIElements &out);
+
+	/*
 		Get component children (only one level deep)
 
 		IN:
@@ -116,6 +127,20 @@ public:
 			Error code
 	*/
 	DWORD ClickElement(UIComponent& element);
+
+	/*
+		Simulate click on StackPanel element
+
+		IN:
+			element - target component
+
+		OUT:
+			void
+
+		RETURN:
+			Error code
+	*/
+	DWORD ClickSPElement(UIComponent& element);
 
 	/*
 		Set component text
@@ -198,9 +223,9 @@ private:
 	*/
 	static 
 	DWORD ClickCallWrapperAPC( void** FuncData, DWORD* pdwSize );
-
 private:
 	mapUIElements m_Elements;			//Enumerated UI elements
+	mapUIHandlers m_Handlers;			//Enumerated UI handlers
 };
 
 #endif//_UI_MANAGER_H_

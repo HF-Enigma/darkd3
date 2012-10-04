@@ -89,6 +89,11 @@ private:
 	*/
 	void ClickUICall(const CALL& callparams, DWORD& retval);
 
+	
+	/*
+	*/
+	void ClickSQUICall( const CALL& callparams, DWORD& retval );
+
 	/*
 		Sell item by ACD
 

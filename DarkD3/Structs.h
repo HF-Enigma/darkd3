@@ -25,7 +25,6 @@ class CAttribLinks;
 class CAttribGroup; 
 class CAttribGroupsContainer; 
 class CAttribFormula; 
-class CObAttribs; 
 class CObAttribCoder; 
 struct tAttribLink;
 
@@ -105,14 +104,7 @@ public:
    DWORD unknown_014;      // 0x014
    Vec2 zoneMin;           // 0x018
    Vec2 zoneMax;		   // 0x020
-   DWORD unknown_028;      // 0x028
-   DWORD unknown_02C;      // 0x02C
-   DWORD unknown_030;      // 0x030
-   DWORD unknown_034;      // 0x034
-   DWORD unknown_038;      // 0x038
-   DWORD unknown_03C;      // 0x03C
-   DWORD unknown_040;      // 0x040
-   DWORD unknown_044;      // 0x044
+   DWORD unknown_028[8];   // 0x028
    DWORD pNavZoneDefRaw;   // 0x048
    DWORD pSceneRecord;     // 0x04C
    DWORD unknown_050;      // 0x050
@@ -210,7 +202,10 @@ public:
 class CWorld  
 { 
 public: 
-	DWORD unknown_0[4];		// 0x000 
+	DWORD unknown_0;		// 0x000 
+	DWORD sno_id;			// 0x004
+	DWORD id;				// 0x008
+	void* pMatrix;			// 0x00C
 	Vec3* a;				// 0x010 
 	Vec3* b;				// 0x014 
 	DWORD unknown_18[12];   // 0x018 
@@ -311,20 +306,36 @@ public:
 	UCHAR unknown_190[64];		// 0x190
 };
 
-//sizeof = 0xDC
+//sizeof = 0x198
 struct CameraRaw
 {
-public:
 	DWORD pad_000[3];			// 0x000
 	DWORD pad_00C[15];			// 0x00C
 	DWORD actor_id;				// 0x048
-	DWORD pad_04C[27];			// 0x04C
+	float pad_04C[27];			// 0x04C
 	Vec3  position;				// 0x0B8
 	DWORD pad_0C4;				// 0x0C4
 	float zoom2;				// 0x0C8
 	DWORD pad_0CC;				// 0x0CC
 	float zoom;					// 0x0D0
 	float unk[2];				// 0x0D4
+	float pad_0DC[46];			// 0x0DC
+	DWORD cam_mode;				// 0x194	0 - free, 2 - snapped, 3 - AV
+};
+
+//sizeof = 0x74
+struct CameraRaw2
+{
+	DWORD unk_000;				// 0x000
+	float rot1;					// 0x004
+	float rot2;					// 0x008
+	float rot3;					// 0x01C
+	float rot4;					// 0x010
+	Vec3  position;				// 0x014
+	float pad_020[3];			// 0x020
+	float fovY;					// 0x02C
+	float fovX;					// 0x030
+	float unk_034[16];			// 0x034	some valid data
 };
 
 //sizeof = 0x44C
@@ -337,13 +348,13 @@ struct tObManStorage
 	CObDataContainer* Data;					// 0x0A8 
 	UCHAR unknown_AC[28];					// 0x0AC 
 	CAttribGroupsContainer* AttribGroups;   // 0x0C8 
-	UCHAR unknown_CC[8];					// 0x0CC 
+	DWORD unknown_CC[2];					// 0x0CC 
 	tContainer<CACD>** ACD;					// 0x0D4 
-	UCHAR unknown_D8[64];					// 0x0D8 
+	DWORD unknown_D8[16];					// 0x0D8 
 	ULONG Mode;								// 0x118 
-	UCHAR unknown_11C[12];					// 0x11C 
-	ULONG Lights;							// 0x128 
-	ULONG Cutscenes;						// 0x12C 
+	DWORD unknown_11C[3];					// 0x11C 
+	void* Lights;							// 0x128 
+	void* Cutscenes;						// 0x12C 
 	UCHAR unknown_130[4];					// 0x130 
 	tContainer<CRActor>* Actors;			// 0x134 
 	UCHAR unknown_138[4];					// 0x138 
@@ -359,7 +370,7 @@ struct tObManStorage
 	CObMovHPtr* MovHistory;					// 0x184 
 	ULONG unknown_188[8];					// 0x188
 	ULONG ui_mgr;							// 0x1A8
-	ULONG unknown_;							// 0x1AC
+	CameraRaw2 *CameraPtr2;					// 0x1AC
 	tContainer<CWorld>* Worlds;				// 0x1B0 
 	UCHAR unknown_1B4[4];					// 0x1B4 
 	CObLocal* Local;						// 0x1B8 
@@ -374,7 +385,7 @@ public:
 	{ 
 		UCHAR unknown_0[56];		// 0x000 
 		ULONG FrameCurrent;			// 0x038 
-		UCHAR unknown_3C[1856];     // 0x03C 
+		DWORD unknown_3C[464];		// 0x03C 
 	}; 
 
 	tPad Data;						// 0x000 
@@ -511,20 +522,20 @@ public:
 	UCHAR unknown_41C[56];			// 0x41C 
 };
 
-
-class CObAttribs  
+//sizeof = 0x28
+struct AttributeDesc 
 { 
-public: 
-	UCHAR unknown_0[4];     // 0x000 
-	ULONG id;				// 0x004 
-	UCHAR unknown_8[8];     // 0x008 
-	CHAR* Formula;			// 0x010 
-	CHAR* Formula2;			// 0x014 
-	CHAR* Name;				// 0x018 
-	CObAttribCoder* Coder;  // 0x01C 
-	LONG Unk;				// 0x020 
-	LONG Next;				// 0x024 
-};
+	DWORD id;			// 0x000
+	DWORD DefaultVal;	// 0x004 for when trying to get an attribute that doesn't exist in a FastAttributeGroup 
+	DWORD unk2;			// 0x008
+	DWORD unk3;			// 0x00C
+	DWORD Type;			// 0x010 0 = float, 1 = int 
+	void* Formula1;		// 0x014
+	void* Formula2;		// 0x018
+	char* Name;			// 0x01C
+	void* unk5;			// 0x020
+	DWORD unk6;			// 0x024
+}; 
 
 class CObAttribCoder  
 { 
@@ -542,7 +553,7 @@ struct tAttribLink
 	BYTE Value[4];			// 0x008 
 };
 
-//sizeof = 0x028
+//sizeof = 0x28
 struct usePowerData
 {
 	PowerIds power_1;		// 0x000
@@ -554,6 +565,8 @@ struct usePowerData
 	DWORD end;				// 0x020
 	DWORD zero;				// 0x024
 };
+
+
 
 //-------------------------------------
 #endif//_STRUCTS_H_

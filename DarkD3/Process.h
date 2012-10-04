@@ -118,6 +118,10 @@ private:
 	*/
 	DWORD CopyTLS(HANDLE hSourceThd, HANDLE hTargetThd);
 
+
+	// Debug functions
+	void EnumAttribList();
+
 private:
 	HANDLE	hDevice;			// driver device handle
 };

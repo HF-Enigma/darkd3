@@ -15,6 +15,7 @@
 #define AUC_BASE				0x00FC7560   //0x00FC75B0
 
 //Functions
+#define FUNC_D3D_PRESENT_OFFSET	0x0007B6FC	//IDirect3DDevice9::Present
 #define FUNC_USE_POWER			0x0097EF80  //0x0097C810	//D3::UsePowerToLocation
 #define FUNC_SELL_ITEM			0x00BBE880	//D3::ACD::SellItem
 
@@ -22,20 +23,6 @@
 #define SNO_DEF_PTR 			0x3C
 #define SNO_COUNT				0x10C
 #define SNO_DEF_INDEX_OFF 		0x148
-
-//Object iteration offsets
-extern DWORD ITER_STRUCT_BASE;
-
-#define ITER_STRUCT_OFF1	 	0xA8
-#define ITER_STRUCT_OFF2		0x58
-
-#define ITER_STRUCT_MOV_OFF 	0x7F20
-#define ITER_STRUCT_ACTION_OFF	0x7F44
-#define ITER_STRUCT_POWER1_OFF	0x7F7C
-#define ITER_STRUCT_POWER2_OFF	0x7F80
-#define ITER_STRUCT_MOUSE_OFF	0x7F84
-#define ITER_STRUCT_GUID_OFF	0x7F88
-
 
 /*
 	Some useful routines

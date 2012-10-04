@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Routines.h"
+#include "../DarkD3/Camera.h"
 
 bool CGameManager::GetD3process(DWORD &pid, HWND &hWnd)
 {
@@ -32,35 +33,61 @@ DWORD CGameManager::AttachToGame()
 
 	CSNOManager::Instance().LoadDB();
 
+	CCamera::Instance().SetZoom(0);
+
     return pid;
 }
 
-void CGameManager::SetQuest()
+void CGameManager::SetQuest( int questNo, int subquestNo )
 {
-    //Set current quest
+	ds_utils::CDSString strQuestName, strSubQuestName;
+
+	const wchar_t* pTemplateQuest = L"Root.NormalLayer.BattleNetQuestSelection_main.LayoutRoot.OverlayContainer.QuestMenu.NavigationMenuList._content._stackpanel._item%d";
+	const wchar_t* pTemplateSubQuest = L"Root.NormalLayer.BattleNetQuestSelection_main.LayoutRoot.OverlayContainer.QuestMenu.NavigationMenuList._content._stackpanel._item%d.NavigationMenuListItemContainer.MenuListItem.MenuSubItem.MenuSubList._content._stackpanel._item%d";
+
+	strQuestName.format(pTemplateQuest, questNo);
+	strSubQuestName.format(pTemplateSubQuest, questNo, subquestNo);
+
+	mapUIElements elems, elems2;
+
+
+	CUIManager::Instance().EnumUI();
+
+    //Open quest window
     UIComponent *pChQuestBtn = CUIManager::Instance().GetUIElementByHash(HASH_CH_QUEST_BTN);
     if(pChQuestBtn)
     {
         CUIManager::Instance().ClickElement(*pChQuestBtn);
+		CUIManager::Instance().EnumUI();
 
         //Set normal difficulty
         UIComponent *pDiffBox = CUIManager::Instance().GetUIElementByHash(HASH_DIFF_BOX);
         if(pDiffBox)
-            CUIManager::Instance().SetCBIndex(*pDiffBox, 0);
+			CUIManager::Instance().SetCBIndex(*pDiffBox, 0);
 
         //Select quest and subquest
-        UIComponent *pQuestBtn = CUIManager::Instance().GetUIElementByHash(HASH_QUEST_BTN);
-        UIComponent *pSubQuestBtn = CUIManager::Instance().GetUIElementByHash(HASH_SUBQUEST_BTN);
-        if(pQuestBtn && pQuestBtn)
+        UIComponent *pQuestBtn = CUIManager::Instance().GetUIElementByName(strQuestName.data_mb());
+        if(pQuestBtn)
         {
             CUIManager::Instance().ClickElement(*pQuestBtn);
-            CUIManager::Instance().ClickElement(*pSubQuestBtn);
+
+			UIComponent *pSubQuestBtn = CUIManager::Instance().GetUIElementByName(strSubQuestName.data_mb());
+			if(pSubQuestBtn)
+				CUIManager::Instance().ClickSPElement(*pSubQuestBtn);
         }
 
         //Accept change
         UIComponent *pAcceptBtn = CUIManager::Instance().GetUIElementByHash(HASH_ACCEPT_BTN);
         if(pAcceptBtn)
+		{
             CUIManager::Instance().ClickElement(*pAcceptBtn);
+			CUIManager::Instance().EnumUI();
+
+			//Confirm change
+			UIComponent *pConfirmBtn = CUIManager::Instance().GetUIElementByHash(HASH_CONFIRM_BTN);
+			if(pConfirmBtn)
+				CUIManager::Instance().ClickElement(*pConfirmBtn);
+		}
     }
 }
 
@@ -87,7 +114,6 @@ void CGameManager::EnterGame()
 void CGameManager::BuildSnoDB(std::string path)
 {
     //Build initial database
-    //if(CSNOManager::Instance().LoadDB() != ERROR_SUCCESS)
     CSNOManager::Instance().BuildDBFromFile(path);
 }
 
@@ -98,14 +124,14 @@ void CGameManager::GoToNeighbor()
     CActorManager::GetPlayer(player);
 
     //Get player scene
-    CD3Scene *pScene = smgr.GetActorScene(player.location());
+    CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.RActor.guid_world);
 
     if(pScene)
     {
         std::vector<NavCell> cells;
 
         //Get plater cell
-        NavCell *pCell = pScene->GetActorCell(player.location());
+        NavCell *pCell = pScene->GetCellByCoords(player.location());
 
         //Get neighbor cells
         if(pCell)
@@ -138,7 +164,9 @@ void CGameManager::DoLogin(std::string Login, std::string Pass)
 
 bool CGameManager::OperateAH( vecAHItems &ahItems )
 {
-    CUIManager::Instance().EnumUI(NULL, true);
+	mapUIElements elems;
+
+    CUIManager::Instance().EnumUI();
 
     ahItems.clear();
 
@@ -150,6 +178,10 @@ bool CGameManager::OperateAH( vecAHItems &ahItems )
 	//Open AH
 	CUIManager::Instance().ClickElement(*pAhBtn);
 
+	Sleep(10);
+
+	CUIManager::Instance().EnumUI();
+
 	//Get "Equipment" button
 	UIComponent *pItemsBtn = CUIManager::Instance().GetUIElementByHash(HASH_EQUIP_BTN);
 
@@ -157,6 +189,10 @@ bool CGameManager::OperateAH( vecAHItems &ahItems )
 		return false;
 
 	CUIManager::Instance().ClickElement(*pItemsBtn);
+
+	Sleep(10);
+
+	CUIManager::Instance().EnumUI();
 
 	//Get "Search" button
 	UIComponent *pSearchBtn = CUIManager::Instance().GetUIElementByHash(HASH_SEARCH_BTN);
@@ -173,68 +209,15 @@ bool CGameManager::OperateAH( vecAHItems &ahItems )
 	auc.GetItems(ahItems);
 
 	//Close AH
+	pAhBtn = CUIManager::Instance().GetUIElementByHash(HASH_AH_BTN);
 	CUIManager::Instance().ClickElement(*pAhBtn);
 
 	return true;
 }
 
-struct AttributeDesc 
-{ 
-	/* 0x00 */ int id; 
-	/* 0x04 */ int DefaultVal; // for when trying to get an attribute that doesn't exist in a FastAttributeGroup 
-	/* 0x08 */ int unk2; 
-	/* 0x0C */ int unk3; 
-	/* 0x10 */ int Type; // 0 = float, 1 = int 
-	/* 0x14 */ char* Formula1; 
-	/* 0x18 */ char* Formula2; 
-	/* 0x1C */ char* Name; 
-	/* 0x20 */ void* unk5; 
-	/* 0x24 */ int unk6; 
-}; 
-
-struct AttributeDescNamed
-{
-	AttributeDesc desk;
-	char name[64];
-};
-
-
-#include <DbgHelp.h>
 
 DWORD CGameManager::PwnMobs( float distance )
 {
-	/*DWORD dwAddr = 0x1520518;
-	AttributeDescNamed desknamed;
-	std::vector<ds_utils::CDSString> vecAttribs;
-
-	for(int i = 0; ;i++)
-	{
-		if(CProcess::Instance().Core.Read(dwAddr + i*sizeof(AttributeDesc), sizeof(desknamed.desk), &desknamed.desk) != ERROR_SUCCESS || 
-			desknamed.desk.Name == NULL || desknamed.desk.Name == (char*)INVALID_VALUE)
-		{
-			break;
-		}
-
-		CProcess::Instance().Core.Read((DWORD)desknamed.desk.Name, sizeof(desknamed.name), &desknamed.name);
-
-		//vecAttribs.push_back(desknamed);
-
-		ds_utils::CDSString strName, strType;//desknamed.name);
-
-		if(desknamed.desk.Type == 0)
-			strType = L"float";
-		else if(desknamed.desk.Type == 1)
-			strType = L"int";
-		else
-			strType = L"unknown";
-
-		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(desknamed.name).data(), desknamed.desk.id, strType.data());
-
-		OutputDebugStringW(strName.data());
-
-		vecAttribs.push_back(strName);
-	}*/
-
 	vecD3Actors mobs;
     std::vector<POWER> powers;
     std::map<AttributeID, ATTRIB_INFO> atbs;
@@ -267,7 +250,7 @@ DWORD CGameManager::PwnMobs( float distance )
 		}
 
 		amgr.GetPlayer(player);
-		player.UsePower(player, Monk_MantraOfHealing);
+		player.UsePower(mobs[0], Monk_FistsofThunder);
 	}
 
 	return ERROR_SUCCESS;
@@ -283,7 +266,7 @@ DWORD CGameManager::Loot(float distance)
 
 		//Get items list
 		amgr.EnumACD();
-		amgr.FilterDroppedItems(items, 3);
+		amgr.FilterDroppedItems(items, 3);		//Magic and better
 		amgr.SortByDistance(items);
 
 		//No items or not in range
@@ -304,27 +287,27 @@ DWORD CGameManager::Loot(float distance)
 	return ERROR_SUCCESS;
 }
 
-void CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
+DWORD CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
 {
     RECT rc;
     int width = 0;
-    vecScenes scenes;
+	mapScenes *pScenes;
     Vec3 PosInWorld;
 
     CGlobalData::Instance().RefreshOffsets();
 
-    if(amgr.GetPlayer(player) != ERROR_SUCCESS)
-        return;
+    CHK_RES(amgr.GetPlayer(player));
 
-    smgr.EnumScenes(&scenes);
+	if((pScenes = smgr.GetWorldScenes(player.RActor.guid_world)) == NULL)
+		return ERROR_NOT_FOUND;
 
-    AABB bounds = smgr.GetScenesLimits();
+    AABB bounds = smgr.GetScenesLimits(player.RActor.guid_world);
 
     GetWindowRect(hwnd, &rc);
 
-    width = rc.right - rc.left;
+    width = rc.right - rc.left - 20;
 
-    float mult = min((width - 5) / (bounds.Max.x - bounds.Min.x), (rc.bottom - rc.top - 5) / (bounds.Max.y - bounds.Min.y));
+    float mult = min((width + 5) / (bounds.Max.x - bounds.Min.x), (rc.bottom - rc.top - 40) / (bounds.Max.y - bounds.Min.y));
 
     //Window coordinates to scene coordinates
     PosInWorld.x = bounds.Min.x + (width - pt.x)/mult;
@@ -332,11 +315,11 @@ void CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
     PosInWorld.z = 0;
 
     //Get scene containing point
-    CD3Scene *pScene = smgr.GetActorScene(PosInWorld);
+    CD3Scene *pScene = smgr.GetSceneByCoords(PosInWorld, player.RActor.guid_world);
 
     if(pScene)
     {
-        NavCell* pCell = pScene->GetActorCell(PosInWorld);
+        NavCell* pCell = pScene->GetCellByCoords(PosInWorld);
 
         //Cell is walkable
         if(pCell && pCell->Flag & NavCellFlagW_AllowWalk)
@@ -348,36 +331,36 @@ void CGameManager::MoveToWindowPoint( HWND hwnd, POINT &pt )
 			InvalidateRect(hwnd, &rc, TRUE);
         }
     }
+
+	return ERROR_SUCCESS;
 }
 
 
-void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
+DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 {
-	RECT rc;
 	int width = 0;
-	vecScenes scenes;
+	mapScenes *pScenes;
 	vecD3Actors mobs;
 
 	CGlobalData::Instance().RefreshOffsets();
 
-	if(amgr.GetPlayer(player) != ERROR_SUCCESS)
-		return;
+	CHK_RES(amgr.GetPlayer(player));
 
-	smgr.EnumScenes(&scenes);
+	smgr.EnumScenes();
+	if((pScenes = smgr.GetWorldScenes(player.RActor.guid_world)) == NULL)
+		return ERROR_NOT_FOUND;
 
-	CD3Scene *pScene = smgr.GetActorScene(player.location());
+	CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.RActor.guid_world);
 	std::vector<NavCell> cells;
 
 	if(pScene)
-		NavCell* pCell = pScene->GetActorCell(player.location());
+		NavCell* pCell = pScene->GetCellByCoords(player.location());
 
-	AABB bounds = smgr.GetScenesLimits();
+	AABB bounds = smgr.GetScenesLimits(player.RActor.guid_world);
 
-	GetWindowRect(hwnd, &rc);
+	width = rc.right - rc.left - 20;
 
-	width = rc.right - rc.left;
-
-	float mult = min((width - 5) / (bounds.Max.x - bounds.Min.x), (rc.bottom - rc.top - 5) / (bounds.Max.y - bounds.Min.y));
+	float mult = min((width + 5) / (bounds.Max.x - bounds.Min.x), (rc.bottom - rc.top - 40) / (bounds.Max.y - bounds.Min.y));
 
 	Pen			BlackPen(Color::Black, 1.0f);
 	Font		ArialFont(_T("Arial"), 8);
@@ -390,38 +373,39 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 
 	g.Clear(Color::Gray);
 
-	for(DWORD i = 0; i < scenes.size(); i++)
+	for(mapScenes::iterator i = pScenes->begin(); i != pScenes->end(); i++)
 	{
 		//Draw scene contents
-		if(scenes[i].SceneRawData.id_scene != INVALID_VALUE)
+		if(i->second.SceneRawData.id_scene != INVALID_VALUE)
 		{
 			//Scene offset on screen
-			Vec3 scene_off = {scenes[i].SceneRawData.navmesh.MeshMin.x - bounds.Min.x, scenes[i].SceneRawData.navmesh.MeshMin.y - bounds.Min.y, 0};
+			Vec3 scene_off = {i->second.SceneRawData.navmesh.MeshMin.x - bounds.Min.x, i->second.SceneRawData.navmesh.MeshMin.y - bounds.Min.y, 0};
+			wchar_t wszTmp[MAX_PATH];
 			std::wstring strName;
 			size_t pos;
 
-			strName.reserve(sizeof(scenes[i].SceneSNO.navmesh.name));
+			MultiByteToWideChar(CP_ACP, 0, i->second.SceneSNO.navmesh.name, 255, wszTmp, MAX_PATH);
 
-			MultiByteToWideChar(CP_ACP, 0, scenes[i].SceneSNO.navmesh.name, 255, (LPWSTR)strName.c_str(), strName.capacity());
+			strName = wszTmp;
 
-			Rect scn_rect(  (int)(width - (scenes[i].SceneRawData.navmesh.MeshMax.x*mult - scenes[i].SceneRawData.navmesh.MeshMin.x*mult + scene_off.x*mult)),
+			Rect scn_rect(  (int)(width - (i->second.SceneRawData.navmesh.MeshMax.x*mult - i->second.SceneRawData.navmesh.MeshMin.x*mult + scene_off.x*mult)),
 							(int)(scene_off.y*mult),
-							(int)((scenes[i].SceneRawData.navmesh.MeshMax.x - scenes[i].SceneRawData.navmesh.MeshMin.x)*mult),
-							(int)((scenes[i].SceneRawData.navmesh.MeshMax.y - scenes[i].SceneRawData.navmesh.MeshMin.y)*mult));
+							(int)((i->second.SceneRawData.navmesh.MeshMax.x - i->second.SceneRawData.navmesh.MeshMin.x)*mult),
+							(int)((i->second.SceneRawData.navmesh.MeshMax.y - i->second.SceneRawData.navmesh.MeshMin.y)*mult));
 
 			g.FillRectangle(&BkgndBrush, scn_rect);
 			g.DrawRectangle(&BlackPen, scn_rect);
 
 			//Draw walkable cells
-			for(DWORD j = 0; j < scenes[i].Cells.size(); j++)
+			for(DWORD j = 0; j < i->second.Cells.size(); j++)
 			{
-				Rect rect(  (int)(width - (scenes[i].Cells[j].Max.x + scene_off.x)*mult),
-							(int)((scenes[i].Cells[j].Min.y + scene_off.y)*mult),
-							(int)((scenes[i].Cells[j].Max.x - scenes[i].Cells[j].Min.x)*mult),
-							(int)((scenes[i].Cells[j].Max.y - scenes[i].Cells[j].Min.y)*mult));
+				Rect rect(  (int)(width - (i->second.Cells[j].Max.x + scene_off.x)*mult),
+							(int)((i->second.Cells[j].Min.y + scene_off.y)*mult),
+							(int)((i->second.Cells[j].Max.x - i->second.Cells[j].Min.x)*mult),
+							(int)((i->second.Cells[j].Max.y - i->second.Cells[j].Min.y)*mult));
 
 				//Draw cell
-				if(scenes[i].Cells[j].Flag & NavCellFlagW_AllowWalk)
+				if(i->second.Cells[j].Flag & NavCellFlagW_AllowWalk)
 				{
 					g.FillRectangle(&GreenBrush, rect);
 					g.DrawRectangle(&BlackPen, rect);
@@ -429,10 +413,10 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 			}	
 
 			//Get scene name
-			pos = strName.rfind(L"/");
+			pos = strName.rfind(L'/');
 
 			if(pos == std::string::npos)
-				pos = strName.rfind(L"\\");
+				pos = strName.rfind(L'\\');
 
 			strName = strName.substr(pos + 1, std::string::npos);
 			strName = strName.substr(0, strName.rfind(L"."));
@@ -445,7 +429,7 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 					&ArialFont, 
 					PointF
 						(
-							width - ((scenes[i].SceneRawData.navmesh.MeshMax.x - scenes[i].SceneRawData.navmesh.MeshMin.x + scene_off.x)*mult),
+							width - ((i->second.SceneRawData.navmesh.MeshMax.x - i->second.SceneRawData.navmesh.MeshMin.x + scene_off.x)*mult),
 							scene_off.y*mult
 						), 
 					&MobBrush
@@ -455,8 +439,7 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 
 	Rect player_rect(   (int)(width - (player.location().x - bounds.Min.x)*mult),
 						(int)((player.location().y - bounds.Min.y)*mult),
-						(int)(6*mult),
-						(int)(6*mult));
+						8, 8);
 
 	//Player location
 	g.FillEllipse(&BlueBrush, player_rect);
@@ -469,11 +452,10 @@ void CGameManager::DrawScenes( HWND hwnd, Graphics &g )
 	{
 		Rect mob_rect(  (int)(width - (mobs[i].RActor.Pos.x - bounds.Min.x)*mult),
 						(int)((mobs[i].RActor.Pos.y - bounds.Min.y)*mult),
-						(int)(4*mult),
-						(int)(4*mult));
+						4,4);
 
 		g.FillEllipse(&MobBrush, mob_rect);
     }
 
-	return;
+	return ERROR_SUCCESS;
 }

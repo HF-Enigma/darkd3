@@ -16,13 +16,14 @@
 #define HASH_LOGIN_BTN		0x50893593b5db22a9
 #define HASH_AH_BTN			0xC66282304743ECB4
 #define HASH_EQUIP_BTN		0x85fe1f4a7c2a9a9c
-#define HASH_SEARCH_BTN		0x0
-#define HASH_CH_QUEST_BTN	0x0
-#define HASH_DIFF_BOX		0x0
-#define HASH_QUEST_BTN		0x0
-#define HASH_SUBQUEST_BTN	0x0
-#define HASH_ACCEPT_BTN		0x0
-#define HASH_START_BTN		0x0
+#define HASH_SEARCH_BTN		0x27fa61f93f895e08
+#define HASH_CH_QUEST_BTN	0x0c4a9cc94c0a929b
+#define HASH_DIFF_BOX		0x24c050d154bb1689
+#define HASH_QUEST_BTN		0xf60e9396faec1cdf
+#define HASH_SUBQUEST_BTN	0x1523a2c96e5dfec9
+#define HASH_ACCEPT_BTN		0x1ae2209980aaea69
+#define HASH_CONFIRM_BTN	0xb4433da3f648a992
+#define HASH_START_BTN		0x51a3923949dc80b7
 
 using namespace Gdiplus;
 
@@ -36,14 +37,14 @@ public:
     void GoToNeighbor();
     void DoLogin(std::string Login, std::string Pass);
 	bool GetD3process(DWORD &pid, HWND &hWnd);
-	void DrawScenes(HWND hwnd, Graphics &g);
+	DWORD DrawScenes(RECT &rc, Graphics &g);
     bool OperateAH(vecAHItems &ahItems);
     DWORD PwnMobs(float distance);
 	DWORD Loot(float distance);
-    void SetQuest();
+	void SetQuest(int questNo, int subquestNo);
     void BuildSnoDB(std::string path);
     void EnterGame();
-    void MoveToWindowPoint( HWND hwnd, POINT &pt );
+	DWORD MoveToWindowPoint( HWND hwnd, POINT &pt );
 private:
 	CSceneManager smgr;
 	CActorManager amgr;

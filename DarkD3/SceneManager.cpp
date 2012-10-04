@@ -22,22 +22,50 @@ CSceneManager::~CSceneManager(void)
 	RETURN:
 		Error code
 */
-DWORD CSceneManager::EnumScenes( vecScenes *pOut /*= NULL*/)
+DWORD CSceneManager::EnumScenes( mapWorlds *pOut /*= NULL*/ )
 {
 	tContainer<SceneRaw> tScenes;
 
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Scenes, sizeof(tScenes), &tScenes));
+	//Refresh SNO scene records
+	CSNOManager::Instance().RefreshSNOMemRecords();
 
-	m_Scenes.clear();
+	//Scene container
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Scenes, sizeof(tScenes), &tScenes));
 
 	//Iterate through each scene
 	for(DWORD i = 0; i<= min(tScenes.Count, tScenes.Limit); i++)
-		m_Scenes.push_back(CD3Scene((DWORD)tScenes.List+ i*sizeof(SceneRaw)));		
+	{
+		CD3Scene scene((DWORD)tScenes.List+ i*sizeof(SceneRaw));
+
+		m_Worlds[scene.SceneRawData.navmesh.id_world][scene.SceneRawData.id_scene] = scene;	
+	}
 
 	if(pOut)
-		*pOut = m_Scenes;
+		*pOut = m_Worlds;
 
 	return ERROR_SUCCESS;
+}
+
+/*
+	Get world scene by ID
+
+	IN:
+		worldID - world ID
+		sceneID - scene ID
+
+	OUT:
+		void
+
+	RETURN:
+		Pointer to found scene
+*/
+CD3Scene* CSceneManager::GetSceneByID( DWORD worldID, DWORD sceneID )
+{
+	//If coordinates match
+	if(m_Worlds.find(worldID) != m_Worlds.end() && m_Worlds[worldID].find(sceneID) != m_Worlds[worldID].end())
+		return &m_Worlds[worldID][sceneID];
+
+	return NULL;
 }
 
 /*
@@ -52,15 +80,18 @@ DWORD CSceneManager::EnumScenes( vecScenes *pOut /*= NULL*/)
 	RETURN:
 		Pointer to found scene
 */
-CD3Scene* CSceneManager::GetActorScene(Vec3 pos)
+CD3Scene* CSceneManager::GetSceneByCoords( Vec3 pos, DWORD worldID )
 {
 	//If coordinates match
-	for(DWORD i = 0; i < m_Scenes.size(); i++)
+	if(m_Worlds.find(worldID) != m_Worlds.end())
 	{
-		if(pos.x >= m_Scenes[i].SceneRawData.navmesh.MeshMin.x && pos.x <= m_Scenes[i].SceneRawData.navmesh.MeshMax.x &&
-			pos.y >= m_Scenes[i].SceneRawData.navmesh.MeshMin.y && pos.y <= m_Scenes[i].SceneRawData.navmesh.MeshMax.y)
+		for(mapScenes::iterator i = m_Worlds[worldID].begin(); i != m_Worlds[worldID].end(); i++)
 		{
-			return &m_Scenes[i];
+			if(pos.x >= i->second.SceneRawData.navmesh.MeshMin.x && pos.x <= i->second.SceneRawData.navmesh.MeshMax.x &&
+				pos.y >= i->second.SceneRawData.navmesh.MeshMin.y && pos.y <= i->second.SceneRawData.navmesh.MeshMax.y)
+			{
+				return &i->second;
+			}
 		}
 	}
 
@@ -73,28 +104,80 @@ CD3Scene* CSceneManager::GetActorScene(Vec3 pos)
 	RETURN:
 		Limits
 */
-AABB CSceneManager::GetScenesLimits()
+AABB CSceneManager::GetScenesLimits( DWORD worldID )
 {
 	AABB retval = {{500000, 500000, 0}, {0, 0, 0}};
 
-	for(DWORD i = 0; i < m_Scenes.size(); i++)
+	if(m_Worlds.find(worldID) != m_Worlds.end())
 	{
-		if(m_Scenes[i].SceneRawData.id_scene != INVALID_VALUE)
+		for(mapScenes::iterator i = m_Worlds[worldID].begin(); i != m_Worlds[worldID].end(); i++)
 		{
-			if(m_Scenes[i].SceneRawData.navmesh.MeshMin.x < retval.Min.x)
-				retval.Min.x = m_Scenes[i].SceneRawData.navmesh.MeshMin.x;
+			if(i->second.SceneRawData.id_scene != INVALID_VALUE)
+			{
+				if(i->second.SceneRawData.navmesh.MeshMin.x < retval.Min.x)
+					retval.Min.x = i->second.SceneRawData.navmesh.MeshMin.x;
 
-			if(m_Scenes[i].SceneRawData.navmesh.MeshMin.y < retval.Min.y)
-				retval.Min.y = m_Scenes[i].SceneRawData.navmesh.MeshMin.y;
+				if(i->second.SceneRawData.navmesh.MeshMin.y < retval.Min.y)
+					retval.Min.y = i->second.SceneRawData.navmesh.MeshMin.y;
 
-			if(m_Scenes[i].SceneRawData.navmesh.MeshMax.x > retval.Max.x)
-				retval.Max.x = m_Scenes[i].SceneRawData.navmesh.MeshMax.x;
+				if(i->second.SceneRawData.navmesh.MeshMax.x > retval.Max.x)
+					retval.Max.x = i->second.SceneRawData.navmesh.MeshMax.x;
 
-			if(m_Scenes[i].SceneRawData.navmesh.MeshMax.y > retval.Max.y)
-				retval.Max.y = m_Scenes[i].SceneRawData.navmesh.MeshMax.y;
+				if(i->second.SceneRawData.navmesh.MeshMax.y > retval.Max.y)
+					retval.Max.y = i->second.SceneRawData.navmesh.MeshMax.y;
+			}	
 		}
-		
 	}
 
 	return retval;
+}
+
+/*
+	Reset scene cache for particular world. Or all cached scenes;
+
+	IN:
+		worldID - world to reset, if INVALID_VALUE - reset everything
+
+	OUT:
+		void
+
+	RETURN:
+		Error code
+*/
+DWORD CSceneManager::Reset( DWORD worldID /*= INVALID_VALUE*/ )
+{
+	if(worldID == INVALID_VALUE)
+	{
+		m_Worlds.clear();
+
+		return ERROR_SUCCESS;
+	}
+	else if(m_Worlds.find(worldID) != m_Worlds.end())
+	{
+		m_Worlds[worldID].clear();
+
+		return ERROR_SUCCESS;
+	}
+	else
+		return ERROR_NOT_FOUND;
+}
+
+/*
+	Retrieve world scenes
+
+	IN:
+		worldID - world
+
+	OUT:
+		void
+
+	RETURN:
+		Cached scenes if any
+*/
+mapScenes* CSceneManager::GetWorldScenes(DWORD worldID)
+{
+	if(m_Worlds.find(worldID) != m_Worlds.end())
+		return &m_Worlds[worldID];
+	else 
+		return NULL;
 }

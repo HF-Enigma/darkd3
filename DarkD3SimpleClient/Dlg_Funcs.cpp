@@ -88,7 +88,7 @@ INT_PTR CMainDlg::OnOpenAH(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 
 INT_PTR CMainDlg::OnSetQuest(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    d3.SetQuest();
+    d3.SetQuest(3, 1);
 
     return (INT_PTR)TRUE;
 }
@@ -149,12 +149,23 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
                 return (INT_PTR)TRUE;
             break;
 
+		case WM_ERASEBKGND:
+				return (INT_PTR)TRUE;
+			break;
+
         case WM_PAINT:
             {
+				RECT rc;
+				GetWindowRect(hDlg, &rc);
                 hdc = BeginPaint(hDlg, &ps);
-                Graphics g(hDlg);
 
-				Instance().d3.DrawScenes(hDlg, g);
+				Bitmap buffer(rc.right - rc.left, rc.bottom - rc.top);
+				Graphics gDlg(hDlg), gBuffer(&buffer);
+                
+				Instance().d3.DrawScenes(rc, gBuffer);
+
+				// Draw the altered image.
+				gDlg.DrawImage(&buffer, 0, 0);
 
                 EndPaint(hDlg, &ps);
                 return (INT_PTR)TRUE;
@@ -163,10 +174,8 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 
 		case WM_SIZE:
 			{
-				RECT rc;
-
-				GetWindowRect(hDlg, &rc);
-				InvalidateRect(hDlg, &rc, FALSE);
+				InvalidateRect(hDlg, NULL, FALSE);
+				UpdateWindow(hDlg);
 			}
 			break;
 

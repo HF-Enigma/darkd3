@@ -63,6 +63,8 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 	//Link RActor with ACD
 	memcpy(&player_ract.ACD, &player_acd.ACD, sizeof(CACD));
 
+	player_ract.m_dwBaseACD = player_acd.m_dwBaseACD;
+
 	player = player_ract;
 
 	return ERROR_SUCCESS;
@@ -195,8 +197,12 @@ DWORD CActorManager::LinkActors()
 				memcpy(&m_RActors[i].ACD, &m_ACDs[j].ACD, sizeof(CACD));
 				memcpy(&m_ACDs[j].RActor, &m_RActors[i].RActor, sizeof(CRActor));
 
-				m_RActors[i].SetLinkFlag();
-				m_ACDs[j].SetLinkFlag();
+				//Base addresses
+				m_RActors[i].m_dwBaseACD = m_ACDs[j].m_dwBaseACD;
+				m_ACDs[j].m_dwBaseRact = m_RActors[i].m_dwBaseRact;
+
+				//Linkage flag
+				m_RActors[i].m_bLinked = m_ACDs[j].m_bLinked = true;
 
 				break;
 			}

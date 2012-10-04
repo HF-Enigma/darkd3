@@ -7,6 +7,7 @@ CD3DPresentDetour::CD3DPresentDetour():
 	m_pCallData(NULL)
 {
 	m_CallHandlers[CallType_ClickUI]	= &CD3DPresentDetour::ClickUICall;
+	m_CallHandlers[CallType_ClickSQUI]	= &CD3DPresentDetour::ClickSQUICall;
 	m_CallHandlers[CallType_UsePower]	= &CD3DPresentDetour::UsePowerCall;
 	m_CallHandlers[CallType_SellItem]	= &CD3DPresentDetour::SellItemCall;
 
@@ -114,6 +115,53 @@ void CD3DPresentDetour::HandleCall()
 void CD3DPresentDetour::ClickUICall( const CALL& callparams, DWORD& retval )
 {
 	CallMethodAsm(NULL, m_pCallData->arg1, CC_cdecl, 1, callparams.arg2);
+
+	__asm
+	{
+		mov edx, retval
+		mov dword ptr [edx], eax
+	}
+}
+
+/*
+	Clicker for SubQuest buttons
+
+	IN:
+		callparams - call parameters
+
+	OUT:
+		retval - function return value
+
+	RETURN:
+		Error code
+
+*/
+void CD3DPresentDetour::ClickSQUICall( const CALL& callparams, DWORD& retval )
+{
+	DWORD dwTmp = 0;
+
+	//Get class
+	CallMethodAsm(NULL, 0x940E90, CC_cdecl, 1, callparams.arg1);
+
+	__asm
+	{
+		mov dwTmp, eax
+	}
+	
+	CallMethodAsm(dwTmp, 0xC4DFD0, CC_thiscall, 1, *((DWORD*)(callparams.arg1 - 0xC78 + 0xE80)));
+
+	//Click handler
+	if(callparams.arg2 != 0)
+		CallMethodAsm(NULL, callparams.arg2, CC_cdecl, 1, callparams.arg3);
+
+
+	//CallMethodAsm(dwTmp, 0x941A80, CC_cdecl, 1, 0x1530780);
+	
+	__asm
+	{
+		mov edx, retval
+		mov dword ptr [edx], eax
+	}
 }
 
 /*
@@ -131,7 +179,13 @@ void CD3DPresentDetour::ClickUICall( const CALL& callparams, DWORD& retval )
 */
 void CD3DPresentDetour::SellItemCall( const CALL& callparams, DWORD& retval )
 {
-	CallMethodAsm(m_pCallData->arg1, FUNC_SELL_ITEM, CC_thiscall_cdecl);		
+	CallMethodAsm(m_pCallData->arg1, FUNC_SELL_ITEM, CC_thiscall_cdecl);	
+
+	__asm
+	{
+		mov edx, retval
+		mov dword ptr [edx], eax
+	}
 }
 
 /*
@@ -165,6 +219,9 @@ void CD3DPresentDetour::UsePowerCall( const CALL& callparams, DWORD& retval )
 		call ecx
 
 		add esp, 0Ch
+
+		mov edx, retval
+		mov dword ptr [edx], eax
 	}
 }
 
@@ -204,13 +261,13 @@ __declspec (naked) void CD3DPresentDetour::CallMethodAsm( DWORD pClass, DWORD dw
 
 	skip_thiscall:
 		call eax
-		xor eax, eax
+		xor ecx, ecx
 
 		// skip popping hidden "this" from stack
 		cmp ebx, CC_fastcall
 		jle skip_hidden
 
-		sub eax, 4
+		sub ecx, 4
 
 	skip_hidden:
 
@@ -221,15 +278,20 @@ __declspec (naked) void CD3DPresentDetour::CallMethodAsm( DWORD pClass, DWORD dw
 		jz skip_vararg
 	
 		// called function popped arguments from stack, so esp must be adjusted
+		mov ebx, eax
+
 		mov eax, esi
 		mov edx, 4
 		mul edx
+		mov ecx, eax
+
+		mov eax ,ebx
 
 	skip_vararg:
 
 		// additional esp adjustment for CProcess::Call stack params
-		add eax, 20
-		sub esp, eax
+		add ecx, 20
+		sub esp, ecx
 	
 		push edi	//return address
 		ret
@@ -249,10 +311,10 @@ PVOID CD3DPresentDetour::FuncAddress()
 */
 PVOID CD3DPresentDetour::PresentAddr()
 {
-	HMODULE hD3DBase = GetModuleHandleA("d3d9.dll");
+	HMODULE hD3DBase = GetModuleHandle(_T("d3d9.dll"));
 
 	//Offset for my Win8 x64
-	return (PVOID)((DWORD)hD3DBase + 0x0007b6fc);
+	return (PVOID)((DWORD)hD3DBase + FUNC_D3D_PRESENT_OFFSET);
 }
 
 /*
@@ -270,35 +332,49 @@ DWORD CD3DPresentDetour::GetD3DPresent()
 	if((d3d = Direct3DCreate9(D3D_SDK_VERSION)) == 0)
 		return 0;
 
-	WNDCLASSEXA wndclass = {sizeof(WNDCLASSEXA), CS_CLASSDC, &DefWindowProc, 0L, 0L, instance, NULL, NULL, NULL, NULL, "WindowClass", NULL};
+	WNDCLASSEX wndclass = {sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, &DefWindowProc, 0L, 0L, instance, NULL, NULL, NULL, NULL, _T("WindowClass"), NULL};
 
-	if(RegisterClassExA(&wndclass) == 0)
+	if(RegisterClassEx(&wndclass) == 0)
+	{
+		d3d->Release();
 		return 0;
+	}
 
-	HWND window = CreateWindowA("WindowClass", "", WS_OVERLAPPEDWINDOW, 0, 0, 640, 480, GetDesktopWindow(), NULL, instance, 0);
+	HWND window = CreateWindow(_T("WindowClass"), _T(""), WS_OVERLAPPEDWINDOW, 0, 0, 1024, 768, NULL, NULL, instance, 0);
 
 	if(!window)
+	{
+		d3d->Release();
+		UnregisterClass(_T("WindowClass"), instance);
+
 		return 0;
+	}
 
-	D3DPRESENT_PARAMETERS d3pp;
-	RtlZeroMemory(&d3pp, sizeof(d3pp));
+	D3DPRESENT_PARAMETERS d3dpp;
+	RtlZeroMemory(&d3dpp, sizeof(d3dpp));
 
-	d3pp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3pp.hDeviceWindow = window;
-	d3pp.Windowed = TRUE;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = window;
+	d3dpp.Windowed = TRUE;
 
-	HRESULT result = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE, &d3pp, &device);
+	HRESULT result = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE, &d3dpp, &device);
 
 	if(FAILED(result))
+	{
+		d3d->Release();
+		UnregisterClass(_T("WindowClass"), instance);
+
 		return 0;
+	}
 
-	device->Release();
+	DWORD dwRet = (DWORD)((*(size_t**)device)[17]);
+
 	d3d->Release();
+	device->Release();
+	UnregisterClass(_T("WindowClass"), instance);
 
-	UnregisterClassA("WindowClass", instance);
-
-	return (DWORD)((*(size_t**)device)[17]);
+	return dwRet;
 }
 
 

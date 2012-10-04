@@ -136,37 +136,63 @@ DWORD CD3Player::GetPowers( std::vector<POWER> &out )
 */
 DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 {
-#if(RCALL_TYPE != USE_DLL)
-	DWORD status = 0;
+#if(RCALL_TYPE == USE_REMOTE_THD)
+	ds_utils::ds_memory::CDSWinDataBlock pCopy;
+	void *pFuncData = 0, *pRemoteData;
+	DWORD dwFuncSize;
+	int index = 0;
+	usePowerData power;
 
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_MOV_OFF, Walk);				//Set to Walk if you want player to move to target, -1 otherwise
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_ACTION_OFF, 1);				//Action type
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_POWER1_OFF, Power);
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_POWER2_OFF, Power);
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_MOUSE_OFF, 1);				//Mouse state
-	CProcess::Instance().Core.Write<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_GUID_OFF, actor.ACD.id_acd);
+	//Allocate space for player pointer and usePower struct
+	CHK_RES(CProcess::Instance().Core.Allocate(sizeof(power) + sizeof(CRActor*), pRemoteData));
 
-	//Perform action
-	ClickToMove(actor.location());
+	power.acd_id = actor.ACD.id_acd;
+	power.end = Walk;
+	power.cmd = 1;
+	power.power_1 = power.power_2 = Power;
+	power.zero = 0;
+	power.pos = actor.ACD.PosWorld;
+	power.world_id = RActor.guid_world;
 
-	DWORD tempvalue = CProcess::Instance().Core.Read<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_ACTION_OFF);
+	CHK_RES(CProcess::Instance().Core.Write<DWORD>((DWORD)pRemoteData, m_dwBaseRact));
+	CHK_RES(CProcess::Instance().Core.Write<usePowerData>((DWORD)pRemoteData + sizeof(CRActor*), power));
 
-	IsMoving(status);
+	UsePowerWrapper(&pFuncData, &dwFuncSize);
 
-	while( tempvalue == 1 && status == 1)
+	pCopy.Allocate(dwFuncSize);
+
+	memcpy(pCopy, pFuncData, dwFuncSize);
+
+	DWORD dwReplacement[3] = {(DWORD)pRemoteData, (DWORD)pRemoteData + sizeof(CRActor*), m_dwBaseRact};
+
+	//Replace stubs with proper addresses
+	for(DWORD i = 0; i < dwFuncSize; i++)
 	{
-		Sleep(10);
-		tempvalue = CProcess::Instance().Core.Read<DWORD>(ITER_STRUCT_BASE + ITER_STRUCT_ACTION_OFF);
-		IsMoving(status);
+		if(((DWORD*)(&((BYTE*)pCopy)[i]))[0] == 0xDEADBEEF)
+		{
+			memcpy(&((BYTE*)pCopy)[i], &dwReplacement[index], sizeof(DWORD));
+			index++;
+
+			if(index >= ARRAYSIZE(dwReplacement))
+				break;
+		}
 	}
-#else
+
+	//Do remote call
+	CProcess::Instance().RemoteCall(pCopy, dwFuncSize);
+
+	//Free allocated memory
+	CProcess::Instance().Core.Free(pRemoteData);
+
+#elif(RCALL_TYPE == USE_DLL)
+
 	CALL call = {0};
 	CALL_RET ret = {0};
 
 	call.valid = VALID_CALL;
 	call.state = CallState_Pending;
 	call.type = CallType_UsePower;
-	call.arg1 = m_dwBaseAddr;
+	call.arg1 = m_dwBaseRact;
 
 	call.usepower.acd_id = actor.ACD.id_acd;
 	call.usepower.end = Walk;
@@ -178,11 +204,77 @@ DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 
 	CProcess::Instance().shared.DoCall(call, ret);
 
+#else
+
+	return ERROR_NOT_SUPPORTED;
+
 #endif
+
 	return ERROR_SUCCESS;
 }
 
 bool CD3Player::valid()
 {
 	return m_bValid;
+}
+
+/*
+	ASM code container for UsePower RemoteThread call
+
+	IN:
+		void
+
+	OUT:
+		FuncData - pointer to function body
+		pdwSize - size of code
+
+	RETURN:
+		Error code
+*/
+DWORD CD3Player::UsePowerWrapper( void** FuncData, DWORD* pdwSize )
+{
+	__asm
+	{
+		//calculate size of executable code
+		mov eax, start
+		mov ebx, codeend
+		sub ebx, eax
+		mov edi, pdwSize
+		mov dword ptr [edi], ebx
+
+		//get pointer to code start
+		mov eax, FuncData
+		mov ebx, start
+		mov dword ptr [eax],ebx
+		jmp codeend
+
+	start: 
+		push 0xDEADBEEF			//pPlayerPtr
+		push 1
+		push 0
+		mov esi, 0xDEADBEEF		//dwPacketAddr
+		mov eax, 0xDEADBEEF		//dwPlayerPtr
+			
+		mov ecx, FUNC_USE_POWER	
+		call ecx
+
+		add esp, 0Ch
+
+		mov ecx, 64
+		mov edi, fs:[18h]
+		add edi, 0E10h
+		xor esi, esi
+
+	zero_tls:
+		mov dword ptr [edi], esi
+		add edi, 4
+		dec ecx
+		jnz zero_tls
+
+		ret
+
+	codeend:
+	}
+
+	return ERROR_SUCCESS;
 }

@@ -79,12 +79,28 @@ public:
 	DWORD UsePower( CD3Actor actor, PowerIds Power );
 
 	/*
+		ASM code container for UsePower RemoteThread call
+
+		IN:
+			void
+
+		OUT:
+			FuncData - pointer to function body
+			pdwSize - size of code
+
+		RETURN:
+			Error code
+	*/
+	DWORD UsePowerWrapper( void** FuncData, DWORD* pdwSize );
+
+	/*
 		Check if player exists and valid
 		
 		RETURN:
 			Validity flag
 	*/
 	bool valid();
+
 private:
 
 	bool m_bValid;		//Player is valid
