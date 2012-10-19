@@ -1,5 +1,7 @@
 #include "DarkD3SimpleClient.h"
 
+HWND hMapDlg = NULL;
+
 INT_PTR CMainDlg::OnInit(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     DWORD pid = 0;
@@ -142,17 +144,11 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
-	bool xf;
-	xf = false;
-//
-	//if(xf)
-	//{
-	//	InvalidateRect(hDlg, NULL, FALSE);
-//		UpdateWindow(hDlg);
-//	}
+
     switch(message)
     {
         case WM_INITDIALOG:
+				hMapDlg = hDlg;
                 return (INT_PTR)TRUE;
             break;
 
@@ -174,21 +170,14 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 				// Draw the altered image.
 				gDlg.DrawImage(&buffer, 0, 0);
 
-                //EndPaint(hDlg, &ps);
-				InvalidateRect(hDlg, NULL, FALSE);
-				//Sleep(500);
-				UpdateWindow(hDlg);
-				
+                EndPaint(hDlg, &ps);
 
-
-				xf = true;
                 return (INT_PTR)TRUE;
             }
             break;
 
 		case WM_SIZE:
 			{
-				xf = false;
 				InvalidateRect(hDlg, NULL, FALSE);
 				UpdateWindow(hDlg);
 			}
@@ -196,7 +185,6 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 
         case WM_LBUTTONUP:
             {
-				xf = false;
                 POINT pt = {LOWORD(lParam), HIWORD(lParam)};
 
                 Instance().d3.MoveToWindowPoint(hDlg, pt);
@@ -205,12 +193,14 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
 
         case WM_CLOSE:
             {
-				xf = false;
+				hMapDlg = NULL;
+				Instance().m_hMapWnd = NULL;
                 EndDialog(hDlg, 0);
-                Instance().m_hMapWnd = NULL;
+
                 return (INT_PTR)TRUE;	  
             }
             break;
+
 		case WM_SETFOCUS :
 			{
 				//Sleep(1000);
@@ -221,9 +211,6 @@ INT_PTR CALLBACK CMainDlg::RenderProc( HWND hDlg, UINT message, WPARAM wParam, L
         default:
             break;
     }
-	//InvalidateRect(hDlg, NULL, FALSE);
-	if(xf){
-Sleep(500);
-UpdateWindow(hDlg);}
+
     return 0;
 }

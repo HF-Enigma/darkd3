@@ -146,13 +146,13 @@ DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 	//Allocate space for player pointer and usePower struct
 	CHK_RES(CProcess::Instance().Core.Allocate(sizeof(power) + sizeof(CRActor*), pRemoteData));
 
-	power.acd_id = actor.ACD.id_acd;
-	power.end = Walk;
-	power.cmd = 1;
-	power.power_1 = power.power_2 = Power;
-	power.zero = 0;
-	power.pos = actor.ACD.PosWorld;
-	power.world_id = RActor.guid_world;
+	power.acd_id	= actor.ACD.id_acd;
+	power.end		= Walk;
+	power.cmd		= 1;
+	power.power_1	= power.power_2 = Power;
+	power.zero		= 0;
+	power.pos		= actor.ACD.PosWorld;
+	power.world_id	= RActor.guid_world;
 
 	CHK_RES(CProcess::Instance().Core.Write<DWORD>((DWORD)pRemoteData, m_dwBaseRact));
 	CHK_RES(CProcess::Instance().Core.Write<usePowerData>((DWORD)pRemoteData + sizeof(CRActor*), power));

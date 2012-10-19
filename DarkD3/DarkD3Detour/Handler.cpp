@@ -141,18 +141,18 @@ void CD3DPresentDetour::ClickSQUICall( const CALL& callparams, DWORD& retval )
 	DWORD dwTmp = 0;
 
 	//Get class
-	CallMethodAsm(NULL, 0x940E90, CC_cdecl, 1, callparams.arg1);
+	CallMethodAsm(NULL, FUNC_UI_GET_PTR, CC_cdecl, 1, callparams.arg1 + FIELD_OFFSET(UIComponent, val_C90));
 
 	__asm
 	{
 		mov dwTmp, eax
 	}
 	
-	CallMethodAsm(dwTmp, 0xC4DFD0, CC_thiscall, 1, *((DWORD*)(callparams.arg1 - 0xC78 + 0xE80)));
+	CallMethodAsm(dwTmp, FUNC_UI_UPDATE, CC_thiscall, 1, *((DWORD*)(callparams.arg1 + FIELD_OFFSET(UIComponent, cb_index2))));
 
 	//Click handler
 	if(callparams.arg2 != 0)
-		CallMethodAsm(NULL, callparams.arg2, CC_cdecl, 1, callparams.arg3);
+		CallMethodAsm(NULL, callparams.arg2, CC_cdecl, 1, callparams.arg1 + FIELD_OFFSET(UIComponent, self));
 
 
 	//CallMethodAsm(dwTmp, 0x941A80, CC_cdecl, 1, 0x1530780);

@@ -155,7 +155,7 @@ public:
 	DWORD unknown_1CC[55];	// 0x1CC
 };
 
-//sizeof = 0x428
+//sizeof = 0x42C
 class CRActor  
 { 
 public: 
@@ -184,18 +184,18 @@ public:
 	Vec3 Pos4;				// 0x140 
 	DWORD unknown_14C[4];	// 0x14C 
 	DWORD N13E1EB50;		// 0x15C 
-	DWORD unknown_160[44];	// 0x160 
-	Vec3 PosObj;			// 0x210 
-	DWORD unknown_21C[89];  // 0x21C 
-	CActorMovement* Mov;    // 0x380
-	float Direction;		// 0x384 
-	DWORD unknown_388[6];   // 0x388 
-	Vec3 Vel;				// 0x3A0 
-	Vec3 Pos6;				// 0x3AC 
-	DWORD unknown_3B8[24];  // 0x3B8 
-	ULONG Frame;			// 0x418 
-	ULONG Diff;				// 0x41C 
-	DWORD unknown_420[2];   // 0x420 
+	DWORD unknown_160[45];	// 0x160 
+	Vec3 PosObj;			// 0x214 
+	DWORD unknown_21C[89];  // 0x220 
+	CActorMovement* Mov;    // 0x384
+	float Direction;		// 0x388 
+	DWORD unknown_388[6];   // 0x38C 
+	Vec3 Vel;				// 0x3A4 
+	Vec3 Pos6;				// 0x3B0 
+	DWORD unknown_3B8[24];  // 0x3BC 
+	ULONG Frame;			// 0x41C 
+	ULONG Diff;				// 0x420 
+	DWORD unknown_420[2];   // 0x424 
 };
 
 //sizeof = 0x48
@@ -306,21 +306,26 @@ public:
 	UCHAR unknown_190[64];		// 0x190
 };
 
+//sizeof = 0x94
+struct CameraSub
+{
+	DWORD pad_04C[3];			// 0x000
+	float unk_008[2];			// 0x008
+	float zoom;					// 0x014
+	float unk_018;				// 0x018
+	DWORD actor_id;				// 0x01C
+	DWORD unk_0x020[2];			// 0x020
+	float unk_020[24];			// 0x028
+	Vec3  position;				// 0x088
+};
+
 //sizeof = 0x198
 struct CameraRaw
 {
-	DWORD pad_000[3];			// 0x000
-	DWORD pad_00C[15];			// 0x00C
-	DWORD actor_id;				// 0x048
-	float pad_04C[27];			// 0x04C
-	Vec3  position;				// 0x0B8
-	DWORD pad_0C4;				// 0x0C4
-	float zoom2;				// 0x0C8
-	DWORD pad_0CC;				// 0x0CC
-	float zoom;					// 0x0D0
-	float unk[2];				// 0x0D4
-	float pad_0DC[46];			// 0x0DC
-	DWORD cam_mode;				// 0x194	0 - free, 2 - snapped, 3 - AV
+	DWORD pad_000[18];			// 0x000
+	CameraSub* ptr;				// 0x048
+	float pad_04C[42];			// 0x04C
+	DWORD cam_mode;				// 0x0F4	0 - free, 2 - snapped, 3 - AV
 };
 
 //sizeof = 0x74
@@ -377,7 +382,7 @@ struct tObManStorage
 	ULONG unknown_1BC[164];					// 0x1BC
 };
 
-//sizeof = 0xBE8
+//sizeof = 0xC00
 class ObMan  
 { 
 public: 
@@ -385,12 +390,12 @@ public:
 	{ 
 		UCHAR unknown_0[56];		// 0x000 
 		ULONG FrameCurrent;			// 0x038 
-		DWORD unknown_3C[464];		// 0x03C 
+		DWORD unknown_3C[470];		// 0x03C 
 	}; 
 
 	tPad Data;						// 0x000 
-	tObManStorage Storage;			// 0x77C 
-	UCHAR unknown_BC8[32];			// 0xBC8 
+	tObManStorage Storage;			// 0x794
+	UCHAR unknown_BC8[32];			// 0xBE0 
 }; 
 
 //sizeof = 0x4
@@ -414,9 +419,9 @@ struct tObData
 	UCHAR unknown_0[4];     // 0x000 
 	ULONG id_acd;			// 0x004 
 	ULONG id_actor;			// 0x008 
-	DWORD unknown_C[32];    // 0x00C 
-	ObSkill skills[6];		// 0x0BC
-	DWORD unknown_132[144];	// 0x104 
+	DWORD unknown_C[40];    // 0x00C 
+	ObSkill skills[6];		// 0x0A8
+	DWORD unknown_132[144];	// 0x0F0
 }; 
 
 //sizeof = 0x298
@@ -525,16 +530,16 @@ public:
 //sizeof = 0x28
 struct AttributeDesc 
 { 
-	DWORD id;			// 0x000
+	DWORD unk0;			// 0x000
 	DWORD DefaultVal;	// 0x004 for when trying to get an attribute that doesn't exist in a FastAttributeGroup 
 	DWORD unk2;			// 0x008
-	DWORD unk3;			// 0x00C
 	DWORD Type;			// 0x010 0 = float, 1 = int 
 	void* Formula1;		// 0x014
 	void* Formula2;		// 0x018
 	char* Name;			// 0x01C
-	void* unk5;			// 0x020
-	DWORD unk6;			// 0x024
+	DWORD unk3;			// 0x020
+	void* unk5;			// 0x024
+	DWORD id;			// 0x028
 }; 
 
 class CObAttribCoder  

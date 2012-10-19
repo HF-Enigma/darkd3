@@ -4,6 +4,7 @@
 CCamera::CCamera(void)
 {
 	RtlZeroMemory(&m_camRaw, sizeof(m_camRaw));
+	RtlZeroMemory(&m_CamSub, sizeof(m_CamSub));
 }
 
 CCamera::~CCamera(void)
@@ -31,11 +32,12 @@ CCamera& CCamera::Instance()
 */
 DWORD CCamera::AttachToActor(CD3Actor actor)
 {
-	CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw);
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)m_camRaw.ptr, sizeof(m_CamSub), &m_CamSub));
 
-	m_camRaw.actor_id = actor.RActor.id_actor;
+	m_CamSub.actor_id = actor.RActor.id_actor;
 
-	CProcess::Instance().Core.Write((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, m_camRaw);
+	CHK_RES(CProcess::Instance().Core.Write((DWORD)m_camRaw.ptr, m_CamSub));
 
 	return ERROR_SUCCESS;
 }
@@ -54,11 +56,14 @@ DWORD CCamera::AttachToActor(CD3Actor actor)
 */
 DWORD CCamera::SetZoom(float val)
 {
-	CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw);
+	CameraRaw2 cam2;
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)m_camRaw.ptr, sizeof(m_CamSub), &m_CamSub));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr2, sizeof(cam2), &cam2));
 
-	m_camRaw.zoom = val;
+	m_CamSub.zoom = val;
 
-	CProcess::Instance().Core.Write((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, m_camRaw);
+	CHK_RES(CProcess::Instance().Core.Write((DWORD)m_camRaw.ptr, m_CamSub));
 
 	return ERROR_SUCCESS;
 }
@@ -78,12 +83,15 @@ DWORD CCamera::SetZoom(float val)
 */
 DWORD CCamera::SetPosition(Vec3 pos)
 {
-	CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw);
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, sizeof(m_camRaw), &m_camRaw));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)m_camRaw.ptr, sizeof(m_CamSub), &m_CamSub));
 
-	m_camRaw.actor_id = (DWORD)INVALID_VALUE;
-	m_camRaw.position = pos;
+	m_camRaw.cam_mode = 0;
+	//m_CamSub.actor_id = (DWORD)INVALID_VALUE;
+	m_CamSub.position = pos;
 
-	CProcess::Instance().Core.Write((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, m_camRaw);
+	CHK_RES(CProcess::Instance().Core.Write((DWORD)CGlobalData::Instance().ObjMgr.Storage.CameraPtr, m_camRaw));
+	CHK_RES(CProcess::Instance().Core.Write((DWORD)m_camRaw.ptr, m_CamSub));
 
 	return ERROR_SUCCESS;
 }

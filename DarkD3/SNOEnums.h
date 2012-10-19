@@ -122,17 +122,17 @@ enum NavCellFlagsW : WORD
 
 enum SNOGroup : int
 {
-	SNOGroup_Actor = 0x010B,
-	SNOGroup_Monster = 0x0494,
-	SNOGroup_Scene = 0x99,
+	SNOGroup_Actor		= 0x010B,
+	SNOGroup_Monster	= 0x0494,
+	SNOGroup_Scene		= 0x99,
 };
 
 //SNO location in memory
 enum SNOGroupOffset
 {
-	SNOGroup_Scene_Addr = 0x01595BC8,			//1.0.4
-	SNOGroup_StringList_Addr = 0x0158C240,		//1.0.4
-	SNOGroup_GameBalance_Addr = 0x01549A40		//1.0.4
+	SNOGroup_Scene_Addr			= 0x18CCE58,	//0x01595BC8	//1.0.5
+	SNOGroup_StringList_Addr	= 0x0158C240,	//0x0187E7D0	//1.0.5
+	SNOGroup_GameBalance_Addr	= 0x18817C8		//0x01549A40	//1.0.5
 };
 
 enum SNOGBType
