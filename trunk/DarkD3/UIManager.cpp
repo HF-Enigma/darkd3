@@ -289,8 +289,8 @@ DWORD CUIManager::SetCBIndex( UIComponent& element, int index )
 {
 	mapUIElements children;
 
-	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index), index);
-	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index2), index);
+	//CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index), index);
+	//CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, cb_index2), index);
 
 	GetChildren(element, children);
 
@@ -446,9 +446,9 @@ DWORD CUIManager::ClickSPElement( UIComponent& element )
 	call.valid = VALID_CALL;
 	call.state = CallState_Pending;
 	call.type = CallType_ClickSQUI;
-	call.arg1 = element.dwBaseAddr + 0xC78;
+	call.arg1 = element.dwBaseAddr;
 	call.arg2 = element.click_handler;
-	call.arg3 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
+	//call.arg3 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
 
 	CProcess::Instance().shared.DoCall(call, ret);
 

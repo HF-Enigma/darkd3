@@ -27,24 +27,40 @@
 
 using namespace Gdiplus;
 
+DWORD CALLBACK RedrawWatch(LPVOID lpParam);
+extern HWND hMapDlg;
+
 class CGameManager
 {
 public:
-	CGameManager() { };
-	~CGameManager() { };
+	CGameManager()
+	{
+		bWatchActive = true;
+
+		CreateThread(NULL, 0, RedrawWatch, this, 0, NULL);
+	};
+
+	~CGameManager() 
+	{
+		bWatchActive = false;
+	};
 	 
-    DWORD AttachToGame();
-    void GoToNeighbor();
-    void DoLogin(std::string Login, std::string Pass);
-	bool GetD3process(DWORD &pid, HWND &hWnd);
-	DWORD DrawScenes(RECT &rc, Graphics &g);
-    bool OperateAH(vecAHItems &ahItems);
-    DWORD PwnMobs(float distance);
-	DWORD Loot(float distance);
-	void SetQuest(int questNo, int subquestNo);
-    void BuildSnoDB(std::string path);
-    void EnterGame();
-	DWORD MoveToWindowPoint( HWND hwnd, POINT &pt );
+    DWORD	AttachToGame();
+    void	GoToNeighbor();
+    void	DoLogin(std::string Login, std::string Pass);
+	bool	GetD3process(DWORD &pid, HWND &hWnd);
+	DWORD	DrawScenes(RECT &rc, Graphics &g);
+    bool	OperateAH(vecAHItems &ahItems);
+    DWORD	PwnMobs(float distance);
+	DWORD	Loot(float distance);
+	void	SetQuest(int questNo, int subquestNo);
+    void	BuildSnoDB(std::string path);
+    void	EnterGame();
+	DWORD	MoveToWindowPoint( HWND hwnd, POINT &pt );
+
+public:
+	bool	bWatchActive;
+
 private:
 	CSceneManager smgr;
 	CActorManager amgr;

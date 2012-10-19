@@ -56,6 +56,8 @@ void CProcess::Attach( DWORD pid )
 	CSNOManager::Instance().InitDB();
 	CUIManager::Instance().EnumUI();
 
+	//EnumAttribList();
+
 #if(RCALL_TYPE == USE_DLL)
 	Dll.Inject();
 #endif
@@ -293,7 +295,7 @@ DWORD CProcess::QueueUserAPCEx(PAPCFUNC pfnApc, HANDLE hThread, DWORD dwData)
 
 void CProcess::EnumAttribList()
 {
-	DWORD dwAddr = 0x1520518;
+	DWORD dwAddr = 0x168D77C; //0x1520518;
 
 	AttributeDesc desk;
 	char sszName[64];

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Detour.h"
 #include "../Shared.h"
+#include "../UI_structs.h"
 #include <d3d9.h>
 
 //IDirect3DDevice9::Present

@@ -5,6 +5,7 @@
 #include "Routines.h"
 #include "../DarkD3/Camera.h"
 
+
 bool CGameManager::GetD3process(DWORD &pid, HWND &hWnd)
 {
     hWnd = FindWindow(NULL, _T("Diablo III"));
@@ -456,6 +457,28 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 
 		g.FillEllipse(&MobBrush, mob_rect);
     }
+
+	return ERROR_SUCCESS;
+}
+
+DWORD CALLBACK RedrawWatch(LPVOID lpParam)
+{
+	CGameManager* pClass = (CGameManager*)lpParam;
+
+	while(pClass->bWatchActive)
+	{
+		static DWORD LastRedraw = 0;
+
+		//Redraw every 33ms (30 fps)
+		if(hMapDlg && GetTickCount() - LastRedraw > 33)
+		{
+			InvalidateRect(hMapDlg, NULL, FALSE);
+			UpdateWindow(hMapDlg);
+			LastRedraw = GetTickCount();
+		}
+
+		Sleep(1);
+	}
 
 	return ERROR_SUCCESS;
 }

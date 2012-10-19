@@ -26,7 +26,14 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 	tContainer<CACD> acds;
 
 	CD3Player player_ract, player_acd;
+	CObLocal local;
+	CObDataContainer data;
 
+	//Get local players struct
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Local, sizeof(local), &local));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Data + local.Index*0x7FF8, sizeof(data), &data));
+
+	//Get RActor and ACD lists
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Actors, sizeof(racts), &racts));
 	CHK_RES(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)CGlobalData::Instance().ObjMgr.Storage.ACD), sizeof(acds), &acds));
 
@@ -38,7 +45,7 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 
 		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CRActor, id_acd));
 
-		if(dwGUID == PLAYER_GUID)
+		if(dwGUID == data.Data.id_acd)
 		{
 			player_ract = CD3Player(dwOffset, NULL, false);
 			break;
@@ -53,7 +60,7 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 
 		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CACD, id_acd));
 
-		if(dwGUID == PLAYER_GUID)
+		if(dwGUID == data.Data.id_acd)
 		{
 			player_acd = CD3Player(dwOffset, NULL, true);
 			break;
@@ -190,8 +197,8 @@ DWORD CActorManager::LinkActors()
 	{
 		for (DWORD j = 0; j< m_ACDs.size(); j++)
 		{
-			if((m_RActors[i].RActor.id_acd != INVALID_VALUE && m_RActors[i].RActor.id_acd == m_ACDs[j].ACD.id_acd) ||
-				m_RActors[i].RActor.id_actor == m_ACDs[j].ACD.id_actor)
+			if((m_RActors[i].RActor.id_acd != INVALID_VALUE && m_RActors[i].RActor.id_acd != 0 && m_RActors[i].RActor.id_acd == m_ACDs[j].ACD.id_acd) ||
+				(m_RActors[i].RActor.id_actor != INVALID_VALUE && m_RActors[i].RActor.id_actor != 0 && m_RActors[i].RActor.id_actor == m_ACDs[j].ACD.id_actor))
 			{
 				//Link objects with same guid
 				memcpy(&m_RActors[i].ACD, &m_ACDs[j].ACD, sizeof(CACD));
@@ -228,29 +235,29 @@ DWORD CActorManager::FilterMobs(vecD3Actors& mobs)
 {
 	mobs.clear();
 
-	for (DWORD i = 0; i< m_RActors.size(); i++)
+	for (DWORD i = 0; i< m_ACDs.size(); i++)
 	{
 		//Not a monster
-		if(m_RActors[i].type() != ActorType_Monster)
+		if(m_ACDs[i].type() != ActorType_Monster)
 			continue;
 
 		//Not a monster
-		if(m_RActors[i].MonsterSNO.Type != MobType_Demon && 
-			m_RActors[i].MonsterSNO.Type != MobType_Beast && 
-			m_RActors[i].MonsterSNO.Type != MobType_Undead && 
-			m_RActors[i].MonsterSNO.Type != MobType_Undead)
+		if(m_ACDs[i].MonsterSNO.Type != MobType_Demon && 
+			m_ACDs[i].MonsterSNO.Type != MobType_Beast && 
+			m_ACDs[i].MonsterSNO.Type != MobType_Undead && 
+			m_ACDs[i].MonsterSNO.Type != MobType_Undead)
 			continue; 
 
 		//Invulnerable
-		if(m_RActors[i].GetAttribInt(Invulnerable) > 0)
+		if(m_ACDs[i].GetAttribInt(Invulnerable) > 0)
 			continue;
 
 		//Dead
-		if(m_RActors[i].GetAttribFloat(Hitpoints_Cur) <= 0) 
+		if(m_ACDs[i].GetAttribFloat(Hitpoints_Cur) <= 0) 
 			continue;
 
 		//Actor is a valid Mob
-		mobs.push_back(m_RActors[i]);
+		mobs.push_back(m_ACDs[i]);
 	}
 
 	return ERROR_SUCCESS;

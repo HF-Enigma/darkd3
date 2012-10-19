@@ -68,6 +68,7 @@ private:
 
 private:
 	CameraRaw m_camRaw;			//Camera struct in memory
+	CameraSub m_CamSub;
 };
 
 #endif//_CAMERA_H_
