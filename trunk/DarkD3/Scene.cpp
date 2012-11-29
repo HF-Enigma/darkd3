@@ -9,6 +9,7 @@ CD3Scene::CD3Scene():
 CD3Scene::CD3Scene( DWORD dwBase ):
 	m_dwBase(dwBase)
 {
+
 	RtlZeroMemory(&ZoneRawData, sizeof(ZoneRawData));
 	RtlZeroMemory(&SceneRawData, sizeof(SceneRawData));
 

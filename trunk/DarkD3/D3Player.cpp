@@ -108,8 +108,7 @@ DWORD CD3Player::GetPowers( std::vector<POWER> &out )
 		power.rune = data.Data.skills[i].rune;
 
 		//Get cooldown time if any
-		if(attribs[Power_Cooldown].values.find(power.id) != attribs[Power_Cooldown].values.end() &&
-			attribs[Power_Cooldown_Start].values.find(power.id) != attribs[Power_Cooldown_Start].values.end())
+		if(attribs[Power_Cooldown].values.count(power.id) && attribs[Power_Cooldown_Start].values.count(power.id))
 		{
 			power.cd = attribs[Power_Cooldown].values[power.id].ival
 					 - attribs[Power_Cooldown_Start].values[power.id].ival;

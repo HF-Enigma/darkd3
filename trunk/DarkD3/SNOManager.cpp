@@ -38,7 +38,9 @@ DWORD CSNOManager::InitDB()
 */
 DWORD CSNOManager::RefreshSNOMemRecords()
 {
+	//mapSNO actors2;
 	CHK_RES(ParseMemorySNO(SNOGroup_Scene_Addr, Scenes));
+	//ParseMemorySNO(SNOGroup_Actors_Addr, actors2);
 
 	return ERROR_SUCCESS;
 }

@@ -356,7 +356,6 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 
 	if(pScene)
 		NavCell* pCell = pScene->GetCellByCoords(player.location());
-
 	AABB bounds = smgr.GetScenesLimits(player.RActor.guid_world);
 
 	width = rc.right - rc.left - 20;
