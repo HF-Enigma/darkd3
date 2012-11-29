@@ -27,7 +27,7 @@ DWORD CAuction::GetItems( vecAHItems &out )
 	AHList list;
 	DWORD dwBaseOffset = 0;
 
-	dwBaseOffset = CProcess::Instance().Core.Read<DWORD>(CProcess::Instance().ModuleBase() + AUC_BASE);
+	dwBaseOffset = CProcess::Instance().Core.Read<DWORD>(AUC_BASE);
 	dwBaseOffset = CProcess::Instance().Core.Read<DWORD>(dwBaseOffset);
 
 	CHK_RES(CProcess::Instance().Core.Read(dwBaseOffset, sizeof(list), &list));

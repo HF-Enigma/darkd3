@@ -18,6 +18,7 @@ struct UIRect
 	float bottom;
 };
 
+//sizeof = 0x48
 template<class K, class V, size_t inline_slots = 10> 
 struct HashTable
 {
@@ -28,15 +29,15 @@ struct HashTable
 		V value;
 	};
 
-	void *u_0; // Points to &HashTable + 1 in UI hash tables. User-data field?
-	void *u_1;
-	Pair **table;
-	void *u_2;
-	DWORD table_size;
-	Pair *inline_table[inline_slots];
-	void *u_3;
-	DWORD mask; // (table size in power of 2) - 1
-	DWORD entries;
+	void *u_0;							// 0x000	Points to &HashTable + 1 in UI hash tables. User-data field?
+	void *u_1;							// 0x004
+	Pair **table;						// 0x008
+	void *u_2;							// 0x00C
+	DWORD table_size;					// 0x010
+	Pair *inline_table[inline_slots];	// 0x014
+	void *u_3;							// 0x03C
+	DWORD mask;							// 0x040	(table size in power of 2) - 1
+	DWORD entries;						// 0x044
 };
 
 /* UIEvent
