@@ -144,34 +144,22 @@ DWORD CSNOManager::BuildDBFromFile( std::string strMPQfile, float *pProgress /*=
 */
 DWORD CSNOManager::ParseMemorySNO( DWORD base, mapSNO& out )
 {
-	char SNOName[64]	= {0};
-	DWORD ignoreCount	= 0;
-	DWORD dwMainOffset	= CProcess::Instance().Core.Read<DWORD>(base);
+    DWORD snoID;
+	CSNOGroup snogroup;
+    tContainer<CSNODef> snodefList;
+    CSNODef curDef;
+	
+    CHK_RES(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>(base), sizeof(snogroup), &snogroup));
+    CHK_RES(CProcess::Instance().Core.Read((DWORD)snogroup.pDef, sizeof(snodefList), &snodefList));
 
-    //Pointer to Index base
-	DWORD dwPointer	= CProcess::Instance().Core.Read<DWORD>(dwMainOffset + SNO_DEF_PTR);
+    // Read 2nd level pointers
+    for(DWORD i = 0; i <= min(snodefList.Count, snodefList.Limit); i++)
+    {
+        CProcess::Instance().Core.Read((DWORD)snodefList.List + i*snodefList.SizeOf, sizeof(curDef), &curDef);
 
-    //Loaded records count
-	DWORD dwCount = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_COUNT);
-
-	if(dwCount == INVALID_VALUE)
-		return ERROR_INVALID_ADDRESS;
-
-	DWORD SnoIndex = CProcess::Instance().Core.Read<DWORD>(dwPointer + SNO_DEF_INDEX_OFF);
-	CProcess::Instance().Core.Read(dwPointer, sizeof(SNOName), SNOName);					
-	DWORD IndexOffset = SnoIndex + 0xC;											
-
-	//Iterating through all records
-	for(DWORD i = 0; i<dwCount; i++)
-	{
-		DWORD CurSnoOffset	= CProcess::Instance().Core.Read<DWORD>(IndexOffset);	
-		DWORD CurSnoID		= CProcess::Instance().Core.Read<DWORD>(CurSnoOffset);				
-
-		out[CurSnoID] = CurSnoOffset;
-
-		//Next item
-		IndexOffset = IndexOffset + 0x10;	
-	}
+        snoID       = CProcess::Instance().Core.Read<DWORD>(curDef.pSNOAddr);
+        out[snoID]  = curDef.pSNOAddr;
+    }
 
 	return ERROR_SUCCESS;
 }

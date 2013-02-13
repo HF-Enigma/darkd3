@@ -340,7 +340,7 @@ public:
 	DataPtr2 Formula;		// 0x00C
 };
 
-//sizeof =  0x5F0
+//sizeof =  0x5F8
 class SNOGBItem
 {
 public:
@@ -401,7 +401,7 @@ public:
 	DWORD GemType;								// 0x5E0
 	DWORD I16;									// 0x5E4
 	DWORD Alpha;								// 0x5E8
-	DWORD pad7;									// 0x5EC
+	DWORD pad7[3];  							// 0x5EC
 };
 
 #endif//_GB_CLASSES_H_

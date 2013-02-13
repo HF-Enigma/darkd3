@@ -40,6 +40,7 @@ public:
 			Error code
 	*/
 	DWORD GetCellNeighbours(NavCell &cell, std::vector<NavCell> &out);
+
 public:
 	SceneRaw					SceneRawData;		//NavScene
 	NavZoneRaw					ZoneRawData;		//NavZone

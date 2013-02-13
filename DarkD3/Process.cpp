@@ -295,7 +295,7 @@ DWORD CProcess::QueueUserAPCEx(PAPCFUNC pfnApc, HANDLE hThread, DWORD dwData)
 
 void CProcess::EnumAttribList()
 {
-	DWORD dwAddr = 0x168D77C; //0x1520518;
+	DWORD dwAddr = 0x16AA824;   //0x168D77C; //0x1520518;
 
 	AttributeDesc desk;
 	char sszName[64];
@@ -319,7 +319,7 @@ void CProcess::EnumAttribList()
 		else
 			strType = L"unknown";
 
-		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(sszName).data(), desk.id, strType.data());
+		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(sszName).data(), desk.id - 1, strType.data());
 
 		OutputDebugStringW(strName.data());
 	}

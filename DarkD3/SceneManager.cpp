@@ -35,7 +35,7 @@ DWORD CSceneManager::EnumScenes( mapWorlds *pOut /*= NULL*/ )
 	//Iterate through each scene
 	for(DWORD i = 0; i<= min(tScenes.Count, tScenes.Limit); i++)
 	{
-		CD3Scene scene((DWORD)tScenes.List+ i*sizeof(SceneRaw));
+		CD3Scene scene((DWORD)tScenes.List+ i*tScenes.SizeOf);
 
 		m_Worlds[scene.SceneRawData.navmesh.id_world][scene.SceneRawData.id_scene] = scene;	
 	}

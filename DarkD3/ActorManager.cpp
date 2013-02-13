@@ -41,7 +41,7 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 	for (DWORD i = 0; i<= min(racts.Count, racts.Limit); i++)
 	{
 		//2nd level pointer
-		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)racts.List) + i*sizeof(CRActor);
+		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)racts.List) + i*racts.SizeOf;
 
 		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CRActor, id_acd));
 
@@ -56,7 +56,7 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 	for (DWORD i = 0; i<= min(acds.Count, acds.Limit); i++)
 	{
 		//2nd level pointer
-		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)acds.List) + i*sizeof(CACD);
+		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)acds.List) + i*acds.SizeOf;
 
 		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CACD, id_acd));
 
@@ -132,7 +132,7 @@ DWORD CActorManager::EnumRActor( vecD3Actors* pRActors /*= NULL*/ )
 	for (DWORD i = 0; i<= min(objects.Count, objects.Limit); i++)
 	{
 		//2nd level pointer
-		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)objects.List) + i*sizeof(CRActor);
+		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)objects.List) + i*objects.SizeOf;
 
 		m_RActors.push_back(CD3Actor(dwOffset, &player.RActor.Pos, false));
 	}
@@ -168,7 +168,7 @@ DWORD CActorManager::EnumACD( vecD3Actors *actors/*= NULL*/ )
 	for (DWORD i = 0; i<= min(objects.Count, objects.Limit); i++)
 	{
 		//2nd level pointer
-		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)objects.List) + i*sizeof(CACD);
+		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)objects.List) + i*objects.SizeOf;
 
 		m_ACDs.push_back(CD3Actor(dwOffset, &player.RActor.Pos));
 	}

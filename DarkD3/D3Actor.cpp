@@ -100,9 +100,9 @@ DWORD CD3Actor::Sell()
 		return ERROR_INVALID_OPERATION;
 
 	call.valid = VALID_CALL;
-	call.type = CallType_SellItem;
+	call.type  = CallType_SellItem;
 	call.state = CallState_Pending;
-	call.arg1 = m_dwBaseRact;
+	call.arg1  = m_dwBaseRact;
 
 	CProcess::Instance().shared.DoCall(call, ret);
 
@@ -139,7 +139,7 @@ DWORD CD3Actor::GetAttribGroup(tContainer<CAttribGroup>* pct, ULONG guid, CAttri
 	USHORT l = (id >> pct->Bits); 
 	USHORT e = id & ((1 << pct->Bits) - 1); 
 
-	DWORD dwFirst = CProcess::Instance().Core.Read<DWORD>((DWORD)pct->List + l*sizeof(pct->List));
+	DWORD dwFirst = CProcess::Instance().Core.Read<DWORD>((DWORD)pct->List + l*pct->SizeOf);
 	DWORD dwSecond = dwFirst + pct->SizeOf * e;
 
 	CHK_RES(CProcess::Instance().Core.Read(dwSecond, sizeof(CAttribGroup), &group));
