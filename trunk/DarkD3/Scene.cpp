@@ -16,9 +16,9 @@ CD3Scene::CD3Scene( DWORD dwBase ):
 	CProcess::Instance().Core.Read(dwBase, sizeof(SceneRaw), &SceneRawData);
 	CProcess::Instance().Core.Read((DWORD)SceneRawData.navmesh.pZone, sizeof(NavZoneRaw), &ZoneRawData);
 
-	if(CSNOManager::Instance().Scenes.find(SceneRawData.navmesh.id_sno) != CSNOManager::Instance().Scenes.end())
+	if(CSNOManager::Instance().Scenes.find(SceneRawData.navmesh.id_SceneSNO) != CSNOManager::Instance().Scenes.end())
 	{
-		DWORD dwSNOAddress = CSNOManager::Instance().Scenes[SceneRawData.navmesh.id_sno];
+		DWORD dwSNOAddress = CSNOManager::Instance().Scenes[SceneRawData.navmesh.id_SceneSNO];
 
 		CProcess::Instance().Core.Read(dwSNOAddress, sizeof(SceneSNO), &SceneSNO);
 

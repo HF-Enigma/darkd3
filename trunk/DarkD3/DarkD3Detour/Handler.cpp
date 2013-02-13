@@ -1,5 +1,5 @@
 #include "Handler.h"
-
+#include "../SNOClasses.h"
 
 CD3DPresentDetour::CD3DPresentDetour():
     CDetour(),

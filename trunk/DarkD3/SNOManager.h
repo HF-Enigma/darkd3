@@ -162,6 +162,7 @@ private:
 			Error code
 	*/
 	DWORD SaveDB();
+
 private:
 	bool m_bInitialized;			//Database initialized
 };
