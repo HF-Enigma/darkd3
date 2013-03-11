@@ -356,12 +356,14 @@ struct CameraRaw2
 //sizeof = 0x44C
 struct tObManStorage
 {
-    UCHAR unknown_0[16];                    // 0x000 
+    DWORD unknown_0[4];                     // 0x000 
     float fl_120;                           // 0x010 
     float fl_1;                             // 0x014 
-    UCHAR unknown_18[144];                  // 0x018 
+    DWORD unknown_18[31];                   // 0x018 
+    DWORD tick_count;                       // 0x094
+    DWORD unknown_98[4];                    // 0x098
     CObDataContainer* Data;                 // 0x0A8 
-    UCHAR unknown_AC[28];                   // 0x0AC 
+    DWORD unknown_AC[7];                    // 0x0AC 
     CAttribGroupsContainer* AttribGroups;   // 0x0C8 
     DWORD unknown_CC[2];                    // 0x0CC 
     tContainer<CACD>** ACD;                 // 0x0D4 
@@ -423,24 +425,32 @@ struct ObSkill
     DWORD unk;              // 0x008
 };
 
-//sizeof = 0x314
+//sizeof = 0x7FA0
 struct tObData  
 { 
-    UCHAR unknown_0[4];     // 0x000 
+    DWORD unknown_0;        // 0x000 
     ULONG id_acd;           // 0x004 
     ULONG id_actor;         // 0x008 
-    DWORD unknown_C[42];    // 0x00C 
-    ObSkill skills[6];      // 0x0A8
-    DWORD unknown_132[142]; // 0x0F0
+    DWORD unknown_00C[42];  // 0x00C 
+    ObSkill skills[6];      // 0x0B4
+    DWORD unknown_0FC[579]; // 0x0FC
+    PowerIds passives[3];   // 0xA08
+    DWORD unknown_A14[6797];// 0xA14
+    DWORD seed[2];          // 0x7448
+    char  charName[64];     // 0x7450
+    char  unk7490[64];      // 0x7490
+    DWORD unk74D0[266];     // 0x74D0
+    int   area;             // 0x78F8
+    int   player_class;     // 0x78FC
+    DWORD unk7900[424];     // 0x7900
 }; 
 
-//sizeof = 0x298
+//sizeof = 0x7FF8
 class CObDataContainer  
 { 
 public: 
     DWORD unknown_0[22];    // 0x000 
     tObData Data;           // 0x058 
-    DWORD unknown_198[64];  // 0x198 
 }; 
 
 //sizeof = 0x60
