@@ -63,12 +63,12 @@ struct UIEvent
 
 	};
 
-	Type type;
+	Type type;      // 0x000
 
-	void *u_0[6];
-	int x;
-	int y;
-	void *u_1[9];
+	void *u_0[6];   // 0x004
+	int x;          // 0x01C
+	int y;          // 0x020
+	void *u_1[9];   // 0x024
 };
 
 //sizeof = 0x208
@@ -80,7 +80,7 @@ struct UIReference
 
 struct UIHandler
 {
-	const char *name; // Ignored if this is 0
+	const void *name; // Ignored if this is 0
 	DWORD hash;
 
 	typedef void (*func_t)(UIReference *element);
@@ -90,9 +90,9 @@ struct UIHandler
 
 struct UIComponentVirtualTable
 {
-	void *u_0[7];
+	void *u_0[8];
 	void (__thiscall *event)(UIComponent *self, int *, UIEvent *event);
-	void *u_1[4];
+	void *u_1[3];
 	void (__thiscall *mouse_move)(UIComponent *self);
 	void *u_2[4];
 	void (__thiscall *mouse_enter)(UIComponent *self);
@@ -121,8 +121,7 @@ struct UIComponent
 		0x13EB408: Unknown > UIContainer
 	*/
 
-	//UIComponentVirtualTable *v_table;			// 0x000
-	DWORD dwBaseAddr;							// 0x000 Instead of v_table. Is filled manually
+	UIComponentVirtualTable *v_table;			// 0x000
 	void *u_0;									// 0x004
 	UIHandler::func_t handler_0;				// 0x008
 	void *u_1[1];								// 0x00C
@@ -144,7 +143,9 @@ struct UIComponent
 	DWORD click_handler;						// 0x554
 	DWORD pad_558[3];							// 0x558
 	DWORD mouse_over;							// 0x564
-	float pad_568[350];							// 0x568
+    DWORD pad_568[2];                           // 0x568
+    DWORD rclick_handler;                       // 0x570
+	float pad_574[347];							// 0x574
 	DWORD text_ptr;								// 0xAE0
 	DWORD pad_ACC[107];							// 0xAE4
 	DWORD val_C90;								// 0xC90
@@ -155,6 +156,7 @@ struct UIComponent
 	DWORD cb_index;								// 0xD04
 	DWORD pad_CF0[100];							// 0xD08
 	DWORD cb_index2;							// 0xE98
+    DWORD dwBaseAddr;							// 
 };
 
 struct UIContainer

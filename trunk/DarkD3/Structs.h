@@ -353,61 +353,60 @@ struct CameraRaw2
     float unk_034[16];          // 0x034    some valid data
 };
 
-//sizeof = 0x44C
+//sizeof = 0x210
 struct tObManStorage
 {
-    DWORD unknown_0[4];                     // 0x000 
-    float fl_120;                           // 0x010 
-    float fl_1;                             // 0x014 
-    DWORD unknown_18[31];                   // 0x018 
-    DWORD tick_count;                       // 0x094
-    DWORD unknown_98[4];                    // 0x098
-    CObDataContainer* Data;                 // 0x0A8 
-    DWORD unknown_AC[7];                    // 0x0AC 
-    CAttribGroupsContainer* AttribGroups;   // 0x0C8 
-    DWORD unknown_CC[2];                    // 0x0CC 
-    tContainer<CACD>** ACD;                 // 0x0D4 
-    DWORD unknown_D8[16];                   // 0x0D8 
-    ULONG Mode;                             // 0x118 
-    DWORD unknown_11C[3];                   // 0x11C 
-    void* Lights;                           // 0x128 
-    void* Cutscenes;                        // 0x12C 
-    UCHAR unknown_130[4];                   // 0x130 
-    tContainer<CRActor>* Actors;            // 0x134 
-    UCHAR unknown_138[4];                   // 0x138 
-    ULONG ppCloth;                          // 0x13C 
-    ULONG ppExplosion;                      // 0x140 
-    UCHAR unknown_144[20];                  // 0x144
-    CameraRaw* CameraPtr;                   // 0x158
-    UCHAR unknown_15C[12];                  // 0x15C
-    ObManFrames* Frames;                    // 0x168 
-    UCHAR unknown_16C[12];                  // 0x16C 
-    tContainer<SceneRaw>* Scenes;           // 0x178 
-    UCHAR unknown_17C[8];                   // 0x17C 
-    CObMovHPtr* MovHistory;                 // 0x184 
-    ULONG unknown_188[8];                   // 0x188
-    ULONG ui_mgr;                           // 0x1A8
-    CameraRaw2 *CameraPtr2;                 // 0x1AC
-    tContainer<CWorld>* Worlds;             // 0x1B0 
-    UCHAR unknown_1B4[4];                   // 0x1B4 
-    CObLocal* Local;                        // 0x1B8 
-    ULONG unknown_1BC[164];                 // 0x1BC
+    DWORD unknown_0[11];                    // 0x000 
+    float fl_120;                           // 0x02C 
+    float fl_1;                             // 0x030 
+    DWORD unknown_34[31];                   // 0x034 
+    DWORD tick_count;                       // 0x0B0
+    DWORD unknown_B4[4];                    // 0x0B4
+    CObDataContainer* Data;                 // 0x0C4 
+    DWORD unknown_0C8[7];                   // 0x0C8 
+    CAttribGroupsContainer* AttribGroups;   // 0x0E4 
+    DWORD unknown_0E8[2];                   // 0x0E8 
+    tContainer<CACD>** ACD;                 // 0x0F0 
+    DWORD unknown_0F4[16];                  // 0x0F4 
+    ULONG Mode;                             // 0x134 
+    DWORD unknown_138[3];                   // 0x138
+    void* Lights;                           // 0x144
+    void* Cutscenes;                        // 0x148
+    UCHAR unknown_14C[4];                   // 0x14C
+    tContainer<CRActor>* Actors;            // 0x15C
+    UCHAR unknown_160[4];                   // 0x160
+    ULONG ppCloth;                          // 0x170
+    ULONG ppExplosion;                      // 0x174
+    DWORD unknown_178[5];                   // 0x178
+    CameraRaw* CameraPtr;                   // 0x18C
+    DWORD unknown_190[3];                   // 0x190
+    ObManFrames* Frames;                    // 0x19C
+    DWORD unknown_1A0[3];                   // 0x1A0
+    tContainer<SceneRaw>* Scenes;           // 0x1AC
+    DWORD unknown_17C[2];                   // 0x1B0
+    CObMovHPtr* MovHistory;                 // 0x1B8
+    ULONG unknown_1BC;                      // 0x1BC
+    ULONG ui_mgr;                           // 0x1DC
+    CameraRaw2 *CameraPtr2;                 // 0x1E0
+    tContainer<CWorld>* Worlds;             // 0x1E4
+    DWORD unknown_1E8;                      // 0x1E8
+    CObLocal* Local;                        // 0x1EC
+    ULONG unknown_1F0[8];                   // 0x1F0
 };
 
-//sizeof = 0xC00
+//sizeof = 0x9C0
 class ObMan  
 { 
 public: 
     struct tPad 
     { 
-        UCHAR unknown_0[56];        // 0x000 
+        DWORD unknown_0[14];        // 0x000 
         ULONG FrameCurrent;         // 0x038 
-        DWORD unknown_3C[470];      // 0x03C 
+        DWORD unknown_3C[477];      // 0x03C 
     }; 
 
     tPad Data;                      // 0x000 
-    tObManStorage Storage;          // 0x794
-    UCHAR unknown_BC8[32];          // 0xBE0 
+    tObManStorage Storage;          // 0x7B0
 }; 
 
 //sizeof = 0x4

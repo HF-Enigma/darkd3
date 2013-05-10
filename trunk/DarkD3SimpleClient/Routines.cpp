@@ -348,15 +348,16 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 	CHK_RES(amgr.GetPlayer(player));
 
 	smgr.EnumScenes();
-	if((pScenes = smgr.GetWorldScenes(player.RActor.guid_world)) == NULL)
+	if((pScenes = smgr.GetWorldScenes(player.ACD.id_world)) == NULL)
 		return ERROR_NOT_FOUND;
 
-	CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.RActor.guid_world);
+	CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.ACD.id_world);
 	std::vector<NavCell> cells;
 
 	if(pScene)
 		NavCell* pCell = pScene->GetCellByCoords(player.location());
-	AABB bounds = smgr.GetScenesLimits(player.RActor.guid_world);
+
+	AABB bounds = smgr.GetScenesLimits(player.ACD.id_world);
 
 	width = rc.right - rc.left - 20;
 

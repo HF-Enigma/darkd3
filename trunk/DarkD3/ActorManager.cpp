@@ -43,9 +43,9 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 		//2nd level pointer
 		DWORD dwOffset = CProcess::Instance().Core.Read<DWORD>((DWORD)racts.List) + i*racts.SizeOf;
 
-		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CRActor, id_acd));
+		DWORD dwGUID = CProcess::Instance().Core.Read<DWORD>(dwOffset + FIELD_OFFSET(CRActor, id_actor));
 
-		if(dwGUID == data.Data.id_acd)
+		if(dwGUID == data.Data.id_actor)
 		{
 			player_ract = CD3Player(dwOffset, NULL, false);
 			break;
@@ -68,11 +68,11 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 	}
 	
 	//Link RActor with ACD
-	memcpy(&player_ract.ACD, &player_acd.ACD, sizeof(CACD));
+	memcpy(&player_acd.RActor, &player_ract.RActor, sizeof(CRActor));
 
-	player_ract.m_dwBaseACD = player_acd.m_dwBaseACD;
+	player_acd.m_dwBaseRact = player_ract.m_dwBaseRact;
 
-	player = player_ract;
+	player = player_acd;
 
 	return ERROR_SUCCESS;
 }
