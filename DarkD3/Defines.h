@@ -10,15 +10,15 @@
 #define INVALID_VALUE			0xFFFFFFFF
 
 //Main pointers
-#define OBJECT_MGR_BASE			0x18909C4	//
-#define AUC_BASE				0x16A7500	//
+#define OBJECT_MGR_BASE			0x18CD394	//
+#define AUC_BASE				0x16E07C8	//
 
 //Functions
 #define FUNC_D3D_PRESENT_OFFSET	0x0007B6FC	//IDirect3DDevice9::Present
-#define FUNC_USE_POWER			0x0094D4C0	//D3::UsePowerToLocation
-#define FUNC_SELL_ITEM			0x00B31310	//D3::ACD::SellItem
-#define FUNC_UI_GET_PTR			0x008F1A70	//
-#define FUNC_UI_UPDATE			0x00AF1AB0	//
+#define FUNC_USE_POWER			0x00951520	//D3::UsePowerToLocation
+#define FUNC_SELL_ITEM			0x00B42AD0	//D3::ACD::SellItem
+#define FUNC_UI_GET_PTR			0x008F1A80	//
+#define FUNC_UI_UPDATE			0x00B01710	//
 
 /*
 	Some useful routines

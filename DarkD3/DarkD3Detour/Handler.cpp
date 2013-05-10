@@ -1,10 +1,10 @@
 #include "Handler.h"
 #include "../SNOClasses.h"
 
-CD3DPresentDetour::CD3DPresentDetour():
-    CDetour(),
-	m_hCallMap(NULL),
-	m_pCallData(NULL)
+CD3DPresentDetour::CD3DPresentDetour()
+    : CDetour()
+	, m_hCallMap(NULL)
+	, m_pCallData(NULL)
 {
 	m_CallHandlers[CallType_ClickUI]	= &CD3DPresentDetour::ClickUICall;
 	m_CallHandlers[CallType_ClickSQUI]	= &CD3DPresentDetour::ClickSQUICall;
@@ -42,11 +42,11 @@ CD3DPresentDetour::~CD3DPresentDetour()
 /*
 	New function
 */
-HRESULT __stdcall CD3DPresentDetour::NewD3DPresent(	IDirect3DDevice9 *device, 
-													const RECT *pSourceRect, 
-													const RECT *pDestRect, 
-													HWND hDestWindowOverride, 
-													const RGNDATA *pDirtyRegion )
+int __cdecl CD3DPresentDetour::NewD3DPresent( IDirect3DDevice9 *device, 
+											  const RECT *pSourceRect, 
+											  const RECT *pDestRect, 
+											  HWND hDestWindowOverride, 
+											  const RGNDATA *pDirtyRegion )
 {
 	Instance().HandleCall();
 
@@ -56,16 +56,16 @@ HRESULT __stdcall CD3DPresentDetour::NewD3DPresent(	IDirect3DDevice9 *device,
 /*
 	Call original function
 */
-HRESULT __stdcall CD3DPresentDetour::CallOriginal(  IDirect3DDevice9 *device, 
-													const RECT *pSourceRect, 
-													const RECT *pDestRect,
-													HWND hDestWindowOverride, 
-													const RGNDATA *pDirtyRegion )
+int __cdecl CD3DPresentDetour::CallOriginal( IDirect3DDevice9 *device, 
+											 const RECT *pSourceRect, 
+											 const RECT *pDestRect,
+											 HWND hDestWindowOverride, 
+											 const RGNDATA *pDirtyRegion )
 {
-	HRESULT status				= S_OK;
+	int status				    = S_OK;
 	SIZE_T dwWritten			= 0;
 	DWORD dwStructSize			= sizeof(JUMPCODE);
-	d3d_present_t D3DPresent	= (d3d_present_t)m_RealAdress;;
+	d3d_present_t D3DPresent	= (d3d_present_t)m_RealAdress;
 
 	WriteProcessMemory(GetCurrentProcess(), m_RealAdress, m_OldCode, dwStructSize, &dwWritten);
 
@@ -153,9 +153,6 @@ void CD3DPresentDetour::ClickSQUICall( const CALL& callparams, DWORD& retval )
 	//Click handler
 	if(callparams.arg2 != 0)
 		CallMethodAsm(NULL, callparams.arg2, CC_cdecl, 1, callparams.arg1 + FIELD_OFFSET(UIComponent, self));
-
-
-	//CallMethodAsm(dwTmp, 0x941A80, CC_cdecl, 1, 0x1530780);
 	
 	__asm
 	{

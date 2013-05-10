@@ -13,6 +13,9 @@ typedef HRESULT (__stdcall *d3d_present_t)( IDirect3DDevice9 *device,
 											const RECT *pDestRect, 
 											HWND hDestWindowOverride, 
 											const RGNDATA *pDirtyRegion);
+
+typedef int (__cdecl *loopProc_t)(void);
+
 //Function calling convention
 enum CallingConvention
 {
@@ -56,19 +59,19 @@ private:
 		New function
 	*/
 	static 
-	HRESULT __stdcall NewD3DPresent(IDirect3DDevice9 *device, 
-									const RECT *pSourceRect, 
-									const RECT *pDestRect, 
-									HWND hDestWindowOverride, 
-									const RGNDATA *pDirtyRegion);
+	int __cdecl NewD3DPresent( IDirect3DDevice9 *device, 
+							   const RECT *pSourceRect, 
+							   const RECT *pDestRect, 
+							   HWND hDestWindowOverride, 
+							   const RGNDATA *pDirtyRegion);
 	/*
 		Call original function
 	*/
-	HRESULT __stdcall CallOriginal( IDirect3DDevice9 *device, 
-									const RECT *pSourceRect, 
-									const RECT *pDestRect, 
-									HWND hDestWindowOverride, 
-									const RGNDATA *pDirtyRegion);
+	int __cdecl CallOriginal( IDirect3DDevice9 *device, 
+							  const RECT *pSourceRect, 
+							  const RECT *pDestRect, 
+							  HWND hDestWindowOverride, 
+							  const RGNDATA *pDirtyRegion);
 
 	/*
 		Handle request from main library
