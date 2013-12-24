@@ -34,8 +34,7 @@ DWORD CGameManager::AttachToGame()
 
 	CSNOManager::Instance().LoadDB();
 
-	CCamera::Instance().SetZoom(0);
-
+	//CCamera::Instance().SetZoom(0);
     return pid;
 }
 
@@ -100,13 +99,13 @@ void CGameManager::EnterGame()
         //Start game
         CUIManager::Instance().ClickElement(*pStartGameBtn);
 
-        CActorManager::GetPlayer(player);
+        DWORD res = CActorManager::GetPlayer(player);
 
         //Wait for player
-        while(!player.valid())
+        while(res != ERROR_SUCCESS)
         {
             Sleep(1000);
-            CActorManager::GetPlayer(player);
+            res = CActorManager::GetPlayer(player);
         }
         Sleep(100);
     }
@@ -231,6 +230,9 @@ DWORD CGameManager::PwnMobs( float distance )
     //Get player skills
     player.GetPowers(powers);
 
+    //Cast buff on self
+    player.UsePower(player, Monk_MantraOfConviction);
+
 	for(;;)
 	{
 		mobs.clear();
@@ -343,7 +345,7 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 	mapScenes *pScenes;
 	vecD3Actors mobs;
 
-	CGlobalData::Instance().RefreshOffsets();
+	//CGlobalData::Instance().RefreshOffsets();
 
 	CHK_RES(amgr.GetPlayer(player));
 
@@ -354,8 +356,8 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 	CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.ACD.id_world);
 	std::vector<NavCell> cells;
 
-	if(pScene)
-		NavCell* pCell = pScene->GetCellByCoords(player.location());
+	/*if(pScene)
+		NavCell* pCell = pScene->GetCellByCoords(player.location());*/
 
 	AABB bounds = smgr.GetScenesLimits(player.ACD.id_world);
 
@@ -385,7 +387,7 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 			std::wstring strName;
 			size_t pos;
 
-			MultiByteToWideChar(CP_ACP, 0, i->second.SceneSNO.navmesh.name, 255, wszTmp, MAX_PATH);
+			//MultiByteToWideChar(CP_ACP, 0, i->second.SceneSNO.navmesh.name, 255, wszTmp, MAX_PATH);
 
 			strName = wszTmp;
 
@@ -423,7 +425,7 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 			strName = strName.substr(0, strName.rfind(L"."));
 
 			//Draw Scene name
-			g.DrawString
+			/*g.DrawString
 				(	
 					strName.c_str(), 
 					strName.length(), 
@@ -434,7 +436,7 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 							scene_off.y*mult
 						), 
 					&MobBrush
-				);
+				);*/
 		}
 	}
 
@@ -451,8 +453,8 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 	//Draw monsters
 	for(DWORD i = 0; i < mobs.size(); i++)
 	{
-		Rect mob_rect(  (int)(width - (mobs[i].RActor.Pos.x - bounds.Min.x)*mult),
-						(int)((mobs[i].RActor.Pos.y - bounds.Min.y)*mult),
+		Rect mob_rect(  (int)(width - (mobs[i].ACD.PosWorld.x - bounds.Min.x)*mult),
+						(int)((mobs[i].ACD.PosWorld.y - bounds.Min.y)*mult),
 						4,4);
 
 		g.FillEllipse(&MobBrush, mob_rect);

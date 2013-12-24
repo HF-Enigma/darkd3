@@ -121,7 +121,7 @@ private:
 
 	// Debug functions
 	void EnumAttribList();
-
+    void EnumSnoList();
 private:
 	HANDLE	hDevice;			// driver device handle
 };

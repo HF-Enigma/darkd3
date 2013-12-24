@@ -124,7 +124,7 @@ public:
    float unknown_050;       // 0x050
    DWORD unknown_054[5];    // 0x054
    float unknown_068;       // 0x068
-   DWORD unknown_06C[8];    // 0x06C
+   DWORD unknown_06C[11];   // 0x06C
    DWORD sizeX;             // 0x08C
    DWORD sizeY;             // 0x090
    AABB  unknown_094;       // 0x094
@@ -155,47 +155,48 @@ public:
     DWORD unknown_1CC[55];  // 0x1CC
 };
 
-//sizeof = 0x42C
+//sizeof > 0x1A8
 class CRActor  
 { 
 public: 
     ULONG id_actor;         // 0x000
-    ULONG id_acd;           // 0x004
-    CHAR Name[128];         // 0x008
-    ULONG id_sno;           // 0x088
-    DWORD unknown_8C;       // 0x08C 
-    Vec3 Rot;               // 0x090 
-    float fUnk_Rot;         // 0x09C 
-    Vec3 Pos;               // 0x0A0
-    float fUnk_130;         // 0x0AC 
-    Vec3 Pos1;              // 0x0B0 
-    float fUnk_734;         // 0x0BC 
-    Vec3 Pos2;              // 0x0C0 
-    DWORD unknown_CC;       // 0x0CC 
-    float RadiusDefault;    // 0x0D0 
-    DWORD unknown_D4;       // 0x0D4 
-    ULONG guid_world;       // 0x0D8 
-    ULONG guid_scene;       // 0x0DC 
-    DWORD unknown_E0[8];    // 0x0E0 
-    Vec3 Pos3;              // 0x100 
-    DWORD unknown_10C[5];   // 0x10C 
-    DWORD unknown_120;      // 0x120
-    DWORD unknown_124[7];   // 0x124
-    Vec3 Pos4;              // 0x140 
-    DWORD unknown_14C[4];   // 0x14C 
-    DWORD N13E1EB50;        // 0x15C 
-    DWORD unknown_160[45];  // 0x160 
-    Vec3 PosObj;            // 0x214 
-    DWORD unknown_21C[89];  // 0x220 
-    CActorMovement* Mov;    // 0x384
-    float Direction;        // 0x388 
-    DWORD unknown_388[6];   // 0x38C 
-    Vec3 Vel;               // 0x3A4 
-    Vec3 Pos6;              // 0x3B0 
-    DWORD unknown_3B8[24];  // 0x3BC 
-    ULONG Frame;            // 0x41C 
-    ULONG Diff;             // 0x420 
-    DWORD unknown_420[2];   // 0x424 
+    CHAR Name[128];         // 0x004
+    ULONG id_sno;           // 0x084
+    DWORD unknown_8C[3];    // 0x088 
+    Vec3 Rot;               // 0x094
+    float fUnk_Rot;         // 0x0A0
+    Vec3 Pos;               // 0x0A4
+    float fUnk_130;         // 0x0B0
+    Vec3 Pos1;              // 0x0B4
+    float fUnk_734;         // 0x0C0
+    Vec3 Pos2;              // 0x0C4
+    DWORD unknown_CC;       // 0x0D0
+    float RadiusDefault;    // 0x0D4
+    DWORD unknown_D4;       // 0x0D8
+    ULONG guid_world;       // 0x0DC
+    ULONG guid_scene;       // 0x0E0
+    DWORD unknown_E8[8];    // 0x0E4
+    Vec3 Pos3;              // 0x104
+    DWORD unknown_10C[5];   // 0x110
+    DWORD unknown_128;      // 0x124
+    DWORD unknown_12C[7];   // 0x128
+    Vec3 Pos4;              // 0x144
+    DWORD unknown_14C[4];   // 0x150
+    DWORD N13E1EB50;        // 0x160
+    DWORD unknown_168[12];  // 0x164
+    Vec3 PosObj;            // 0x194
+    DWORD unknown_1A0;      // 0x1A0
+    CActorMovement* Mov;    // 0x1A4
+    float Direction;        // 0x1A8
+
+    /*DWORD unknown_388[6];   // 0x1AC
+    Vec3 Vel;               //          0x3A4 
+    Vec3 Pos6;              //          0x3B0 
+    DWORD unknown_3B8[24];  //          0x3BC 
+    ULONG Frame;            //          0x41C 
+    ULONG Diff;             //          0x420 
+    DWORD unknown_420[2];   //          0x424 
+    */
 };
 
 //sizeof = 0x48
@@ -224,40 +225,38 @@ public:
     float ScaleSize;        // 0x01C 
     ULONG Flags;            // 0x020 
     DWORD unknown_24;       // 0x024
-    DWORD fix2;             // 0x028 Set to 0x00220018 for fix
+    DWORD fix2;             // 0x028 Set to 0x120010 for fix
     DWORD unknown_2C[2];    // 0x02C
     ULONG IsMoving;         // 0x034 
     ULONG PathIsWalkable;   // 0x038
     UCHAR unknown_3C[4];    // 0x03C
-    Vec3 MovTo;             // 0x040 
+    Vec3 Tp;                // 0x040 
     DWORD guid_world;       // 0x04C 
-    Vec3 Pos2;              // 0x050 
-    float unknown_5C[2];    // 0x05C 
-    DWORD unknown_64[5];    // 0x064 
-    Vec3 Tp;                // 0x078 
-    UCHAR unknown_84[8];    // 0x084 
-    ULONG unk;              // 0x08c 
-    DWORD unknown_90;       // 0x090 
-    DWORD guid_mesh;        // 0x094
-    DWORD unknown_98[4];    // 0x098
-    Vec3 Pos3;              // 0x0A8 
-    DWORD guid_world2;      // 0x0B4 
-    DWORD unknown_B8;       // 0x0B8
-    float Speed2;           // 0x0BC 
-    DWORD unknown_C0[40];   // 0x0C0 
-    ULONG id_actor;         // 0x160 
-    ULONG FrameMov;         // 0x164 
-    ULONG Frame;            // 0x168 
-    ULONG FramePrev;        // 0x16C 
-    UCHAR unknown_170[4];   // 0x170 
-    float Direction;        // 0x174 
-    DWORD unknown_178[177]; // 0x178
+    Vec3 Pos2;              // 
+    DWORD unknown_5C[9];    // 
+    Vec3 MoveTo;            // 
+    DWORD guid_world2;      // 
+    DWORD unknown_84[3];    //
+    DWORD guid_mesh;        //
+    DWORD unknown_98[4];    //
+    Vec3 Pos3;              //
+    DWORD guid_world3;      //
+    DWORD unknown_B8;       //
+    float Speed2;           //
+    DWORD unknown_C0[62];   //
+    ULONG id_actor;         //
+    ULONG FrameMov;         //
+    ULONG Frame;            //
+    ULONG FramePrev;        //
+    UCHAR unknown_170[4];   //
+    float Direction;        //
+    DWORD unknown_178[177]; //
 };
 
 enum MobRareType
 {
     normal        = 0,
-    elite        = 1,
+    elite         = 1,
     yellow        = 2,
     purple        = 3,
     key_warden    = 4
@@ -300,7 +299,7 @@ public:
     char unknown_23C[148];      // 0x23C 
 };
 
-//sizeof = 0x1D0
+//sizeof >= 0x12C
 template <class T>
 class tContainer
 {
@@ -309,11 +308,23 @@ public:
     ULONG Limit;                // 0x100
     ULONG SizeOf;               // 0x104
     ULONG Count;                // 0x108
-    UCHAR unknown_10C[60];      // 0x10C
-    T**   List;                 // 0x148
-    UCHAR unknown_14C[64];      // 0x14C
-    ULONG Bits;                 // 0x18C
-    UCHAR unknown_190[64];      // 0x190
+    ULONG unknown_10C[5];       // 0x10C
+    T**   List;                 // 0x120
+    ULONG unknown_124[16];      // 0x124
+    ULONG Bits;                 // 0x164
+};
+
+//sizeof >= 0x12C
+template <class T>
+class tContainer2
+{
+public:
+    CHAR  Name[256];            // 0x000
+    ULONG Limit;                // 0x100
+    ULONG SizeOf;               // 0x104
+    ULONG Count;                // 0x108
+    ULONG unknown_10C[4];       // 0x10C
+    T**   List;                 // 0x11C
 };
 
 //sizeof = 0x94
@@ -353,60 +364,53 @@ struct CameraRaw2
     float unk_034[16];          // 0x034    some valid data
 };
 
-//sizeof = 0x210
+//sizeof = 0x230
 struct tObManStorage
 {
-    DWORD unknown_0[11];                    // 0x000 
-    float fl_120;                           // 0x02C 
-    float fl_1;                             // 0x030 
-    DWORD unknown_34[31];                   // 0x034 
-    DWORD tick_count;                       // 0x0B0
-    DWORD unknown_B4[4];                    // 0x0B4
-    CObDataContainer* Data;                 // 0x0C4 
-    DWORD unknown_0C8[7];                   // 0x0C8 
-    CAttribGroupsContainer* AttribGroups;   // 0x0E4 
-    DWORD unknown_0E8[2];                   // 0x0E8 
-    tContainer<CACD>** ACD;                 // 0x0F0 
-    DWORD unknown_0F4[16];                  // 0x0F4 
-    ULONG Mode;                             // 0x134 
-    DWORD unknown_138[3];                   // 0x138
-    void* Lights;                           // 0x144
-    void* Cutscenes;                        // 0x148
-    UCHAR unknown_14C[4];                   // 0x14C
-    tContainer<CRActor>* Actors;            // 0x15C
-    UCHAR unknown_160[4];                   // 0x160
-    ULONG ppCloth;                          // 0x170
-    ULONG ppExplosion;                      // 0x174
-    DWORD unknown_178[5];                   // 0x178
-    CameraRaw* CameraPtr;                   // 0x18C
-    DWORD unknown_190[3];                   // 0x190
-    ObManFrames* Frames;                    // 0x19C
-    DWORD unknown_1A0[3];                   // 0x1A0
-    tContainer<SceneRaw>* Scenes;           // 0x1AC
-    DWORD unknown_17C[2];                   // 0x1B0
-    CObMovHPtr* MovHistory;                 // 0x1B8
-    ULONG unknown_1BC;                      // 0x1BC
-    ULONG ui_mgr;                           // 0x1DC
-    CameraRaw2 *CameraPtr2;                 // 0x1E0
-    tContainer<CWorld>* Worlds;             // 0x1E4
-    DWORD unknown_1E8;                      // 0x1E8
-    CObLocal* Local;                        // 0x1EC
-    ULONG unknown_1F0[8];                   // 0x1F0
+    DWORD unknown_0[6];                     // 0x000 
+    float fl_120;                           // 0x018
+    float fl_1;                             // 0x01C
+    DWORD unknown_34[44];                   // 0x020
+    DWORD tick_count;                       // 0x0D0
+    DWORD unknown_B4[4];                    // 0x0D4
+    CObDataContainer* Data;                 // 0x0E4
+    DWORD unknown_0C8[7];                   // 0x0E8
+    CAttribGroupsContainer* AttribGroups;   // 0x104
+    DWORD unknown_0E8[2];                   // 0x108
+    tContainer<CACD>** ACD;                 // 0x110
+    DWORD unknown_0F4[18];                  // 0x114
+    ULONG Mode;                             // 0x15C
+    DWORD unknown_138[3];                   // 0x160
+    void* Lights;                           // 0x16C
+    void* Cutscenes;                        // 0x170
+    DWORD unknown_14C;                      // 0x174
+    tContainer<CRActor>* Actors;            // 0x178
+    DWORD unknown_154;                      // 0x17C
+    ULONG ppCloth;                          // 0x180
+    ULONG ppExplosion;                      // 0x184
+    DWORD unknown_160[5];                   // 0x188
+    CameraRaw* CameraPtr;                   // 0x19C
+    DWORD unknown_178[3];                   // 0x1A0
+    ObManFrames* Frames;                    // 0x1AC
+    DWORD unknown_188[3];                   // 0x1B0
+    tContainer<SceneRaw>* Scenes;           // 0x1BC
+    DWORD unknown_198[9];                   // 0x1C0
+    CObMovHPtr* MovHistory;                 // 0x1E4
+    ULONG unknown_1C0;                      // 0x1E8
+    struct UIManager* ui_mgr;               // 0x1EC
+    CameraRaw2 *CameraPtr2;                 // 0x1F0
+    tContainer<CWorld>* Worlds;             // 0x1F4
+    DWORD unknown_1D0;                      // 0x1F8
+    CObLocal* Local;                        // 0x1FC
+    ULONG unknown_1F0[12];                  // 0x200
 };
 
-//sizeof = 0x9C0
+//sizeof = 0x9F8
 class ObMan  
 { 
 public: 
-    struct tPad 
-    { 
-        DWORD unknown_0[14];        // 0x000 
-        ULONG FrameCurrent;         // 0x038 
-        DWORD unknown_3C[477];      // 0x03C 
-    }; 
-
-    tPad Data;                      // 0x000 
-    tObManStorage Storage;          // 0x7B0
+    DWORD Data[498];                // 0x000 
+    tObManStorage Storage;          // 0x7C8
 }; 
 
 //sizeof = 0x4
@@ -416,35 +420,41 @@ public:
     ObMan* Ptr;             // 0x000 
 }; 
 
-//sizeof = 0xC
+//sizeof = 0x10
 struct ObSkill
 {
     PowerIds id;            // 0x000
     DWORD rune;             // 0x004
-    DWORD unk;              // 0x008
+    DWORD unk[2];           // 0x008
 };
 
-//sizeof = 0x7FA0
+//sizeof = 0x8
+struct ObSkill2
+{
+    PowerIds id;            // 0x000
+    DWORD rune;             // 0x004
+};
+
+
+//sizeof = 0xD0D0
 struct tObData  
 { 
-    DWORD unknown_0;        // 0x000 
-    ULONG id_acd;           // 0x004 
-    ULONG id_actor;         // 0x008 
-    DWORD unknown_00C[42];  // 0x00C 
-    ObSkill skills[6];      // 0x0B4
-    DWORD unknown_0FC[579]; // 0x0FC
-    PowerIds passives[3];   // 0xA08
-    DWORD unknown_A14[6797];// 0xA14
-    DWORD seed[2];          // 0x7448
-    char  charName[64];     // 0x7450
-    char  unk7490[64];      // 0x7490
-    DWORD unk74D0[266];     // 0x74D0
-    int   area;             // 0x78F8
-    int   player_class;     // 0x78FC
-    DWORD unk7900[424];     // 0x7900
+    DWORD unknown_0;            // 0x000 
+    ULONG id_acd;               // 0x004 
+    ULONG id_actor;             // 0x008 
+    DWORD unknown_00C[40];      // 0x00C 
+    ObSkill skills[6];          // 0x0AC
+    DWORD unknown_0FC[1084];    // 0x10C
+    ObSkill2 skills2[6];        // 0x11FC
+    PowerIds passives[4];       // 0x122C
+    DWORD unknown_A14[11041];   // 0x1238
+    DWORD seed[2];              // 0xBEC0
+    char  charName[96];         // 0xBEC8
+    DWORD unk74D0[279];         // 0xBF28
+    int   area;                 // 0xC384
+    int   player_class;         // 0xC388
 }; 
 
-//sizeof = 0x7FF8
 class CObDataContainer  
 { 
 public: 
@@ -514,51 +524,51 @@ class CAttribGroup
 { 
 public: 
     ULONG id_attrib;                // 0x000 
-    UCHAR unknown_4[12];            // 0x004 
-    CAttribFormula* Formula;        // 0x010 
-    UCHAR unknown_14[36];           // 0x014 
-    tMap<tAttribLink *, 33> Links;  // 0x038 
-    UCHAR unknown_CC[144];          // 0x0CC 
+    DWORD flags;                    // 0x004 
+    DWORD unk8;                     // 0x008
+    CAttribFormula* Formula;        // 0x00C 
+    DWORD unknown_10[4];            // 0x010 
+    CAttribFormula* Formula2;       // 0x020
 }; 
 
 class CAttribGroupsContainer  
 { 
 public: 
+    // sizeof = 0x1C
     struct tWtf 
     { 
-        UCHAR unknown_0[24];                        // 0x000 
+        ULONG unknown_0[6];                         // 0x000 
         ULONG _600DF00D;                            // 0x018 
     }; 
 
     tWtf a;                                         // 0x000 
     tWtf b;                                         // 0x01C 
     tWtf c;                                         // 0x038 
-    tWtf d;                                         // 0x054 
-    tContainer<CAttribGroup>* FastAttribGroups;     // 0x070 
-    UCHAR unknown_74[32];                           // 0x074 
+    tContainer<CAttribGroup>* FastAttribGroups;     // 0x054 
+    UCHAR unknown_74[32];                           // 0x058
 }; 
 
 class CAttribFormula  
 { 
 public: 
-    UCHAR unknown_0[8];             // 0x000 
-    tMap<tAttribLink *, 257> Map;   // 0x008 
-    UCHAR unknown_41C[56];          // 0x41C 
+    DWORD limit;            // 0x000
+    DWORD count;            // 0x004
+    DWORD unk_008[2];       // 0x008
+    DWORD array_base;       // 0x010
 };
 
 //sizeof = 0x28
 struct AttributeDesc 
 { 
-    DWORD unk0;         // 0x000
+    DWORD id;           // 0x000
     DWORD DefaultVal;   // 0x004 for when trying to get an attribute that doesn't exist in a FastAttributeGroup 
     DWORD unk2;         // 0x008
+    DWORD unk3;         // 0x00C
     DWORD Type;         // 0x010 0 = float, 1 = int 
-    void* Formula1;     // 0x014
-    void* Formula2;     // 0x018
+    void* Formula[2];   // 0x014
     char* Name;         // 0x01C
-    DWORD unk3;         // 0x020
-    void* unk5;         // 0x024
-    DWORD id;           // 0x028
+    DWORD unk4;         // 0x020
+    unsigned char unk5; // 0x024
 }; 
 
 class CObAttribCoder  
@@ -590,12 +600,12 @@ struct usePowerData
     DWORD zero;             // 0x024
 };
 
-// sizeof = 0x10 
+// sizeof = 0x14
 class CSNODef
 {
 public:
-    DWORD unk[3];           // 0x000
-    DWORD pSNOAddr;         // 0x00C
+    DWORD unk[4];           // 0x000
+    DWORD pSNOAddr;         // 0x010
 };
 
 // sizeof >= 0x14
@@ -603,7 +613,105 @@ class CSNOGroup
 {
 public:
     DWORD unk0[4];                  // 0x000
-    tContainer<CSNODef>* pDef;      // 0x010
+    tContainer2<CSNODef>* pDef[2];  // 0x010
+};
+
+// sizeof = 0xD0
+class CCharInfo
+{
+public:
+    DWORD unk_000[7];           // 0x000
+    char *pBNetTag;             // 0x01C
+    DWORD unk_020[4];           // 0x020
+    int charID;                 // 0x030
+    DWORD unk_034[2];           // 0x034
+    char *pName;                // 0x03C
+    DWORD unk_040[3];           // 0x040
+    int class_idx;              // 0x04C
+    DWORD unk_050;              // 0x050
+    int level;                  // 0x054
+    DWORD unk_058;              // 0x058
+    int paragon;                // 0x05C
+    DWORD unk_060[23];          // 0x060
+    int played;                 // 0x0BC
+    __int64 created_on;         // 0x0C0
+    DWORD unk_0C4[2];           // 0x0C8
+};
+
+// sizeof = 0x158
+class CCharContainer
+{
+public:
+    DWORD unk[34];              // 0x000
+    CCharInfo chr;              // 0x088
+};
+
+class CCharContainer2
+{
+public:
+    DWORD unk[6];               // 0x000
+    CCharContainer info;        // 0x018
+};
+
+
+// sizeof = 0x120
+class CCharMgr
+{
+public:
+    void** vtable;              // 0x000
+    DWORD unk_004[2];           // 0x004
+    int selected_idx;           // 0x00C
+    DWORD unk_010[28];          // 0x010
+    CCharContainer* pCharList;  // 0x080
+    DWORD unk_084;              // 0x084
+    int count;                  // 0x088
+    DWORD unk2[37];             // 0x08C
+};
+
+
+// sizeof == 0x30
+class CCharMap
+{
+public:
+    DWORD unk_000;              // 0x000
+    CCharContainer2* pFirst;    // 0x004
+    CCharContainer2* pFree;     // 0x008
+    int limit;                  // 0x00C
+    int size;                   // 0x010
+    int count;                  // 0x014
+    int unk_018;                // 0x018
+    int free;                   // 0x01C
+    int available;              // 0x020
+    DWORD unk_020[3];           // 0x024
+};
+
+// sizeof = 0x220
+class CCharMgr2
+{
+public:
+    void** vtable;              // 0x000
+    DWORD unk_000[42];          // 0x000
+    CCharMap* pCharMap;         // 0x0AC
+    DWORD unk_0B0[92];          // 0x0B0
+};
+
+// sizeof = 0x878
+class CBNetService
+{
+public:
+    void** vtable;              // 0x000
+    DWORD unk_004[38];          // 0x004
+    CCharMgr2* pChrMgr;         // 0x09C
+    DWORD unk_0A0[502];         // 0x0A0
+};
+
+// sizeof = 0x20
+class CMnagers
+{
+public:
+    void* unk_000[4];           // 0x000
+    CBNetService* ptr;          // 0x010
+    void* unk_014[3];           // 0x014
 };
 
 //-------------------------------------

@@ -93,17 +93,7 @@ public:
 	*/
 	DWORD UsePowerWrapper( void** FuncData, DWORD* pdwSize );
 
-	/*
-		Check if player exists and valid
-		
-		RETURN:
-			Validity flag
-	*/
-	bool valid();
-
 private:
-
-	bool m_bValid;		//Player is valid
 };
 
 #endif//_D3_PLAYER_H_

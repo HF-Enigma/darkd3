@@ -19,25 +19,21 @@ struct UIRect
 };
 
 //sizeof = 0x48
-template<class K, class V, size_t inline_slots = 10> 
+template<class K, class V> 
 struct HashTable
 {
 	struct Pair
 	{
 		Pair *next;
-		K key;
+        K key;
 		V value;
 	};
 
-	void *u_0;							// 0x000	Points to &HashTable + 1 in UI hash tables. User-data field?
-	void *u_1;							// 0x004
-	Pair **table;						// 0x008
-	void *u_2;							// 0x00C
-	DWORD table_size;					// 0x010
-	Pair *inline_table[inline_slots];	// 0x014
-	void *u_3;							// 0x03C
-	DWORD mask;							// 0x040	(table size in power of 2) - 1
-	DWORD entries;						// 0x044
+	DWORD mask;                         // 0x000
+	DWORD u_1;                          // 0x004
+	DWORD u_2;                          // 0x008
+	DWORD u_3;                          // 0x00C
+	Pair *table;                        // 0x010
 };
 
 /* UIEvent
@@ -76,6 +72,12 @@ struct UIReference
 {
 	ULONGLONG hash;							// 0x000
 	char name[0x200];						// 0x008
+};
+
+struct UIReference2
+{
+    DWORD align32;
+    ULONGLONG hash;
 };
 
 struct UIHandler
@@ -121,41 +123,38 @@ struct UIComponent
 		0x13EB408: Unknown > UIContainer
 	*/
 
-	UIComponentVirtualTable *v_table;			// 0x000
-	void *u_0;									// 0x004
-	UIHandler::func_t handler_0;				// 0x008
-	void *u_1[1];								// 0x00C
-	UIHandler::func_t handler_1;				// 0x010
-	void *u_2[2];								// 0x014
-	DWORD sound_0;								// 0x01C
-	void *u_3[2];								// 0x020
-	DWORD visible;								// 0x028
-	DWORD u_4;									// 0x02C
-	UIReference self;							// 0x030
-	UIReference parent;							// 0x238
-	DWORD pad_42C[8];							// 0x440
-	DWORD addr_child1;							// 0x460
-	DWORD pad_464[32];							// 0x464
-	DWORD flag1;								// 0x4E4
-	float pad_4E8[8];							// 0x4E8
-	UIRect rect;								// 0x508
-	float pad_518[15];							// 0x518
-	DWORD click_handler;						// 0x554
-	DWORD pad_558[3];							// 0x558
-	DWORD mouse_over;							// 0x564
-    DWORD pad_568[2];                           // 0x568
-    DWORD rclick_handler;                       // 0x570
-	float pad_574[347];							// 0x574
-	DWORD text_ptr;								// 0xAE0
-	DWORD pad_ACC[107];							// 0xAE4
-	DWORD val_C90;								// 0xC90
-	DWORD pad_C94[3];							// 0xC94
-	DWORD tb_length;							// 0xCA0
-	DWORD tb_size;								// 0xCA4
-	DWORD pad_AD8[23];							// 0xCA8
-	DWORD cb_index;								// 0xD04
-	DWORD pad_CF0[100];							// 0xD08
-	DWORD cb_index2;							// 0xE98
+    UIComponentVirtualTable *v_table;			// 0x000
+    void *u_0;									// 0x004
+    UIHandler::func_t handler_0;				// 0x008
+    void *u_1[1];								// 0x00C
+    UIHandler::func_t handler_1;				// 0x010
+    void *u_2[2];								// 0x014
+    DWORD sound_0;								// 0x01C
+    void *u_3[2];								// 0x020
+    DWORD visible;								// 0x028
+    DWORD u_4;									// 0x02C
+    UIReference self;							// 0x030
+    UIReference parent;							// 0x238
+    DWORD pad_42C[8];							// 0x440
+    DWORD addr_child1;							// 0x460
+    DWORD pad_464[20];							// 0x464
+    DWORD flag1;								// 0x4B4
+    float pad_4E8[8];							// 0x4B8
+    UIRect rect;								// 0x4D8
+    float pad_518[15];							// 0x4E8
+    DWORD click_handler;						// 0x524
+    DWORD pad_558[3];							// 0x528
+    DWORD mouse_over;							// 0x534
+    DWORD pad_568[2];                           // 0x538
+    DWORD rclick_handler;                       // 0x540
+    float pad_574[325];							// 0x544
+    DWORD text_ptr;								// 0xA58
+    DWORD pad_A5C[3];							// 0xA5C 
+    DWORD text_length;							// 0xA68
+    DWORD pad_A6C[133];                         // 0xA6C
+    DWORD val_C80;                              // 0xC80
+    DWORD pad_C84[129];                         // 0xC84
+    DWORD cb_index2;							// 0xE88    0xE98
     DWORD dwBaseAddr;							// 
 };
 
@@ -187,14 +186,14 @@ struct UIControl
 	const char *text_dup;
 };
 
-typedef HashTable<UIReference, UIComponent *> UIComponentMap;
+typedef HashTable<UIReference2, UIComponent*> UIComponentMap;
 typedef HashTable<DWORD, UIHandler *> UIHandlerMap;
 
 struct UIManager
 {
-	UIComponentMap *component_map;
-	void *u_0;
-	UIReference u_1[6];
+	UIComponentMap *component_map;      // 0x000
+	void *u_0;                          // 0x004
+	UIReference u_1[6];                 // 0x008
 	DWORD u_2[1688];
 	UIHandlerMap *handler_map;
 };

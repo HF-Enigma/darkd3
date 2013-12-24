@@ -19,6 +19,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		case DLL_PROCESS_DETACH:
 			CD3DPresentDetour::Instance().Restore();
+            Sleep(500);
 		break;
 	}
 	return TRUE;

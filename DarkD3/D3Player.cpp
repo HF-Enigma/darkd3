@@ -1,16 +1,14 @@
 #include "D3Player.h"
 
 
-CD3Player::CD3Player(void):
-	CD3Actor()
+CD3Player::CD3Player(void)
+    : CD3Actor()
 {
 }
 
-CD3Player::CD3Player( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD /*= true*/ ):
-	CD3Actor(dwBase, playerpos, bACD)
+CD3Player::CD3Player( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD /*= true*/ )
+    : CD3Actor(dwBase, playerpos, bACD)
 {
-	if(ACD.id_acd == PLAYER_GUID && RActor.id_acd == PLAYER_GUID)
-		m_bValid = true;
 }
 
 
@@ -39,11 +37,11 @@ DWORD CD3Player::ClickToMove( Vec3 location )
 
 	//mov.Pos3 = mov.Pos2 = player.Pos;
 	mov.guid_world = mov.guid_world2 = RActor.guid_world;
-	mov.MovTo = location;
+	mov.MoveTo = location;
 	mov.IsMoving = 1;
-	mov.fix2 = 0x00220018;
-	mov.Flags = 69736;
-	mov.unknown_C0[2] = (DWORD)INVALID_VALUE;
+	mov.fix2 = 0x120010;
+	mov.Flags = 0x11068;
+	//mov.unknown_C0[2] = (DWORD)INVALID_VALUE;
 
 	CHK_RES(CProcess::Instance().Core.Write((DWORD)RActor.Mov, sizeof(mov), &mov));
 
@@ -97,7 +95,7 @@ DWORD CD3Player::GetPowers( std::vector<POWER> &out )
 
 	//Get local players struct
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Local, sizeof(local), &local));
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Data + local.Index*0x7FF8, sizeof(data), &data));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Data + local.Index*0xD0D0, sizeof(data), &data));
 	CHK_RES(GetAllAttribs(attribs));
 
 	for(DWORD i = 0; i < sizeof(data.Data.skills) / sizeof(ObSkill); i++)
@@ -146,8 +144,8 @@ DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 	CHK_RES(CProcess::Instance().Core.Allocate(sizeof(power) + sizeof(CRActor*), pRemoteData));
 
 	power.acd_id	= actor.ACD.id_acd;
-	power.end		= Walk;
-	power.cmd		= 1;
+	power.end		= 0xffffffff;
+	power.cmd		= 2;
 	power.power_1	= power.power_2 = Power;
 	power.zero		= 0;
 	power.pos		= actor.ACD.PosWorld;
@@ -185,20 +183,20 @@ DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 
 #elif(RCALL_TYPE == USE_DLL)
 
-	CALL call = {0};
+	CALL call    = {0};
 	CALL_RET ret = {0};
 
 	call.valid = VALID_CALL;
 	call.state = CallState_Pending;
-	call.type = CallType_UsePower;
-	call.arg1 = m_dwBaseRact;
+	call.type  = CallType_UsePower;
+	call.arg1  = m_dwBaseRact;
 
-	call.usepower.acd_id = actor.ACD.id_acd;
-	call.usepower.end = Walk;
-	call.usepower.cmd = 1;
-	call.usepower.power_1 = call.usepower.power_2 = Power;
-	call.usepower.zero = 0;
-	call.usepower.pos = actor.ACD.PosWorld;
+	call.usepower.acd_id   = actor.ACD.id_acd;
+	call.usepower.end      = -1;
+	call.usepower.cmd      = 1;
+	call.usepower.power_1  = call.usepower.power_2 = Power;
+	call.usepower.zero     = 0;
+	call.usepower.pos      = actor.ACD.PosWorld;
 	call.usepower.world_id = RActor.guid_world;
 
 	CProcess::Instance().shared.DoCall(call, ret);
@@ -212,10 +210,6 @@ DWORD CD3Player::UsePower( CD3Actor actor, PowerIds Power )
 	return ERROR_SUCCESS;
 }
 
-bool CD3Player::valid()
-{
-	return m_bValid;
-}
 
 /*
 	ASM code container for UsePower RemoteThread call
