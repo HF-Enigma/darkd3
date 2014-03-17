@@ -122,10 +122,10 @@ DWORD CDetour::DetourFunction( void* pOldFunc, void* pNewFunc )
         m_FarJump.Address = (SIZE_T)pNewFunc;   //Function address
         m_FarJump.OpRet = 0xC3;                 //ret
 
-        StartStopThreads(false);
+        //StartStopThreads(false);
         if(!WriteProcessMemory(GetCurrentProcess(), m_RealAdress, &m_FarJump, dwStructSize, &dwRead))
         {
-            StartStopThreads(true);
+            //StartStopThreads(true);
 
             if(m_OldCode)
             {
@@ -134,7 +134,7 @@ DWORD CDetour::DetourFunction( void* pOldFunc, void* pNewFunc )
             }
             return GetLastError();
         }
-        StartStopThreads(true);
+        //StartStopThreads(true);
 
         m_bDetoured = TRUE;
     }
@@ -152,9 +152,10 @@ void CDetour::Restore()
 
     if(m_bDetoured)
     {
-        StartStopThreads(false);
+        //StartStopThreads(false);
         WriteProcessMemory(GetCurrentProcess(), m_RealAdress, m_OldCode, dwStructSize, &dwWritten);
-        StartStopThreads(true);
+        FlushInstructionCache(GetCurrentProcess(), m_RealAdress, dwStructSize);
+        //StartStopThreads(true);
 
         m_bDetoured = FALSE;
     }

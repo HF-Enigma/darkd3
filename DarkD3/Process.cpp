@@ -54,9 +54,9 @@ void CProcess::Attach( DWORD pid )
 
 	CGlobalData::Instance().RefreshOffsets();
 	CSNOManager::Instance().InitDB();
-	CUIManager::Instance().EnumUI();
 
 	//EnumAttribList();
+    //EnumSnoList();
 
 #if(RCALL_TYPE == USE_DLL)
 	Dll.Inject();
@@ -295,7 +295,7 @@ DWORD CProcess::QueueUserAPCEx(PAPCFUNC pfnApc, HANDLE hThread, DWORD dwData)
 
 void CProcess::EnumAttribList()
 {
-	DWORD dwAddr = 0x16AA824;   //0x168D77C; //0x1520518;
+    DWORD dwAddr = 0x1A7F820;    //0x1A5DD68;   //0x16AA824;   //0x168D77C; //0x1520518;
 
 	AttributeDesc desk;
 	char sszName[64];
@@ -309,18 +309,51 @@ void CProcess::EnumAttribList()
 		}
 
 		CProcess::Instance().Core.Read((DWORD)desk.Name, sizeof(sszName), &sszName);
-
+        ds_utils::CDSString strAtrib( sszName );
 		ds_utils::CDSString strName, strType;
+
+        strAtrib.replace_spaces( L'_' );
 
 		if(desk.Type == 0)
 			strType = L"float";
 		else if(desk.Type == 1)
 			strType = L"int";
-		else
+        else
 			strType = L"unknown";
 
-		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(sszName).data(), desk.id - 1, strType.data());
+		strName.format(L"%ws = 0x%x, // %ws\r\n", strAtrib.data(), desk.id, strType.data());
 
 		OutputDebugStringW(strName.data());
 	}
+}
+
+void CProcess::EnumSnoList()
+{
+    DWORD dwAddr  = 0x1A7B164;
+    DWORD dwAddr2 = 0x1A7B334;
+
+    for(DWORD i = dwAddr; i <= dwAddr2; i += 8)
+    {
+        CSNODef   snoDef = {0};
+        CSNOGroup snoGrp = {0};
+        tContainer2<CSNODef> snoCont = {0};
+
+        DWORD dwDefBase = CProcess::Instance().Core.Read<DWORD>(i);
+        DWORD dwDefAddr = CProcess::Instance().Core.Read<DWORD>(dwDefBase);
+
+        CProcess::Instance().Core.Read(dwDefAddr, sizeof(snoGrp), &snoGrp);
+        CProcess::Instance().Core.Read(snoGrp.pDef[1] != 0 ? (DWORD)snoGrp.pDef[1] : (DWORD)snoGrp.pDef[0], sizeof(snoCont), &snoCont);
+
+        ds_utils::CDSString strValue;
+        ds_utils::CDSString strName(snoCont.Name);
+
+        size_t pos = strName.find(L" Def");
+
+        if(pos != strName.npos)
+            strName[pos] = L'\0';
+
+        strValue.format(L"%-16ws = 0x%x\r\n", strName.data(), dwDefBase);
+
+        OutputDebugStringW(strValue.data());
+    }
 }

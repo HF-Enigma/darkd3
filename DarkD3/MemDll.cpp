@@ -104,7 +104,6 @@ DWORD CMemDll::Unload()
 			MessageBox(NULL, TEXT("Cannot create thread"), TEXT("Error"), MB_ICONERROR);
 			return GetLastError();
 		}
-
 		//Wait for completion
 		WaitForSingleObject(hThread, INFINITE);
 		CloseHandle(hThread);

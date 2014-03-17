@@ -31,7 +31,7 @@ DWORD CActorManager::GetPlayer( CD3Player &player )
 
 	//Get local players struct
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Local, sizeof(local), &local));
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Data + local.Index*0x7FF8, sizeof(data), &data));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Data + local.Index*0xD0D0, sizeof(data), &data));
 
 	//Get RActor and ACD lists
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.Actors, sizeof(racts), &racts));
@@ -197,8 +197,9 @@ DWORD CActorManager::LinkActors()
 	{
 		for (DWORD j = 0; j< m_ACDs.size(); j++)
 		{
-			if((m_RActors[i].RActor.id_acd != INVALID_VALUE && m_RActors[i].RActor.id_acd != 0 && m_RActors[i].RActor.id_acd == m_ACDs[j].ACD.id_acd) ||
-				(m_RActors[i].RActor.id_actor != INVALID_VALUE && m_RActors[i].RActor.id_actor != 0 && m_RActors[i].RActor.id_actor == m_ACDs[j].ACD.id_actor))
+			if( m_RActors[i].RActor.id_actor != INVALID_VALUE && 
+                m_RActors[i].RActor.id_actor != 0 && 
+                m_RActors[i].RActor.id_actor == m_ACDs[j].ACD.id_actor)
 			{
 				//Link objects with same guid
 				memcpy(&m_RActors[i].ACD, &m_ACDs[j].ACD, sizeof(CACD));

@@ -146,11 +146,11 @@ DWORD CSNOManager::ParseMemorySNO( DWORD base, mapSNO& out )
 {
     DWORD snoID;
 	CSNOGroup snogroup;
-    tContainer<CSNODef> snodefList;
+    tContainer2<CSNODef> snodefList;
     CSNODef curDef;
 	
     CHK_RES(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>(base), sizeof(snogroup), &snogroup));
-    CHK_RES(CProcess::Instance().Core.Read((DWORD)snogroup.pDef, sizeof(snodefList), &snodefList));
+    CHK_RES(CProcess::Instance().Core.Read(snogroup.pDef[0] == 0 ? (DWORD)snogroup.pDef[1] : (DWORD)snogroup.pDef[0], sizeof(snodefList), &snodefList));
 
     // Read 2nd level pointers
     for(DWORD i = 0; i <= min(snodefList.Count, snodefList.Limit); i++)
@@ -186,7 +186,7 @@ DWORD CSNOManager::GetStrings( DWORD base, mapNames& out )
 
 	out.clear();
 
-	for (DWORD i = 0; i<dwCount; i++)
+	for (DWORD i = 0; i < dwCount / 2; i++)
 	{
 		//Proxy Name, like "Priest_Male_B_NoLook"
 		CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>(dwCurrentOffset), sizeof(szProxy) - 1, szProxy);
