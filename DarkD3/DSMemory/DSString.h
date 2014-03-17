@@ -66,6 +66,7 @@ namespace ds_utils
         DSUTILS_API void            split(std::vector<CDSString>& delims, std::vector<CDSString>& out);
         DSUTILS_API void            erase(size_t pos, size_t num = 1);
         DSUTILS_API void            trim_all();
+        DSUTILS_API void            replace_spaces(wchar_t newsym);
 
         DSUTILS_API const wchar_t*  data();
         DSUTILS_API const char*     data_mb();

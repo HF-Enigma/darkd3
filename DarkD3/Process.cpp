@@ -295,7 +295,7 @@ DWORD CProcess::QueueUserAPCEx(PAPCFUNC pfnApc, HANDLE hThread, DWORD dwData)
 
 void CProcess::EnumAttribList()
 {
-	DWORD dwAddr = 0x1A5DD68;   //0x16AA824;   //0x168D77C; //0x1520518;
+    DWORD dwAddr = 0x1A7F820;    //0x1A5DD68;   //0x16AA824;   //0x168D77C; //0x1520518;
 
 	AttributeDesc desk;
 	char sszName[64];
@@ -309,8 +309,10 @@ void CProcess::EnumAttribList()
 		}
 
 		CProcess::Instance().Core.Read((DWORD)desk.Name, sizeof(sszName), &sszName);
-
+        ds_utils::CDSString strAtrib( sszName );
 		ds_utils::CDSString strName, strType;
+
+        strAtrib.replace_spaces( L'_' );
 
 		if(desk.Type == 0)
 			strType = L"float";
@@ -319,7 +321,7 @@ void CProcess::EnumAttribList()
         else
 			strType = L"unknown";
 
-		strName.format(L"%ws = 0x%x, // %ws\r\n", ds_utils::CDSString(sszName).data(), desk.id, strType.data());
+		strName.format(L"%ws = 0x%x, // %ws\r\n", strAtrib.data(), desk.id, strType.data());
 
 		OutputDebugStringW(strName.data());
 	}
@@ -327,8 +329,8 @@ void CProcess::EnumAttribList()
 
 void CProcess::EnumSnoList()
 {
-    DWORD dwAddr  = 0x1A5BC94;
-    DWORD dwAddr2 = 0x1A5BE64;
+    DWORD dwAddr  = 0x1A7B164;
+    DWORD dwAddr2 = 0x1A7B334;
 
     for(DWORD i = dwAddr; i <= dwAddr2; i += 8)
     {

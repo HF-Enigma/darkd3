@@ -356,8 +356,8 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 	CD3Scene *pScene = smgr.GetSceneByCoords(player.location(), player.ACD.id_world);
 	std::vector<NavCell> cells;
 
-	/*if(pScene)
-		NavCell* pCell = pScene->GetCellByCoords(player.location());*/
+	if(pScene)
+		NavCell* pCell = pScene->GetCellByCoords(player.location());
 
 	AABB bounds = smgr.GetScenesLimits(player.ACD.id_world);
 
@@ -383,13 +383,7 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 		{
 			//Scene offset on screen
 			Vec3 scene_off = {i->second.SceneRawData.navmesh.MeshMin.x - bounds.Min.x, i->second.SceneRawData.navmesh.MeshMin.y - bounds.Min.y, 0};
-			wchar_t wszTmp[MAX_PATH];
-			std::wstring strName;
 			size_t pos;
-
-			//MultiByteToWideChar(CP_ACP, 0, i->second.SceneSNO.navmesh.name, 255, wszTmp, MAX_PATH);
-
-			strName = wszTmp;
 
 			Rect scn_rect(  (int)(width - (i->second.SceneRawData.navmesh.MeshMax.x*mult - i->second.SceneRawData.navmesh.MeshMin.x*mult + scene_off.x*mult)),
 							(int)(scene_off.y*mult),
@@ -414,29 +408,6 @@ DWORD CGameManager::DrawScenes( RECT &rc, Graphics &g )
 					g.DrawRectangle(&BlackPen, rect);
 				}
 			}	
-
-			//Get scene name
-			pos = strName.rfind(L'/');
-
-			if(pos == std::string::npos)
-				pos = strName.rfind(L'\\');
-
-			strName = strName.substr(pos + 1, std::string::npos);
-			strName = strName.substr(0, strName.rfind(L"."));
-
-			//Draw Scene name
-			/*g.DrawString
-				(	
-					strName.c_str(), 
-					strName.length(), 
-					&ArialFont, 
-					PointF
-						(
-							width - ((i->second.SceneRawData.navmesh.MeshMax.x - i->second.SceneRawData.navmesh.MeshMin.x + scene_off.x)*mult),
-							scene_off.y*mult
-						), 
-					&MobBrush
-				);*/
 		}
 	}
 

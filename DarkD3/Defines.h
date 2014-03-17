@@ -7,7 +7,7 @@
 #define INVALID_VALUE			0xFFFFFFFF
 
 //Main pointers
-#define OBJECT_MGR_BASE			0x1CB0D8C   //
+#define OBJECT_MGR_BASE			0x1CD841C   //
 #define AUC_BASE				0x1CB06E8   //
 
 //Functions

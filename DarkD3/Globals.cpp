@@ -785,7 +785,7 @@ void CGlobalData::InitAttribs()
         PUSH_ATTRIB(Resistance_Penetration_Percent_All, float);
         PUSH_ATTRIB(Fury_Effect_Level, int);
         PUSH_ATTRIB(Health_Potion_Bonus_Heal_Percent, float);
-        PUSH_ATTRIB(Health_Potion_Affects_Allies, int);
+        PUSH_ATTRIB(Health_Potion_Affects_Allies_Percent, int);
         PUSH_ATTRIB(Free_Cast, int);
         PUSH_ATTRIB(Free_Cast_All, int);
         PUSH_ATTRIB(Movement_Scalar_Reduction_Percent, float);
@@ -1095,7 +1095,7 @@ void CGlobalData::InitAttribs()
         PUSH_ATTRIB(Summoning_Machine_Next_Spawn_Ticks, int);
         PUSH_ATTRIB(Summoning_Machine_Spawn_Team, int);
         PUSH_ATTRIB(Screen_Attack_Radius_Constant, float);
-        PUSH_ATTRIB(MaxDamage_Done_Reduction_Percent, float);
+        PUSH_ATTRIB(Max_Damage_Done_Reduction_Percent_1, float);
         PUSH_ATTRIB(Set_Item_Count, int);
         PUSH_ATTRIB(Spawner_Countdown_Percent, float);
         PUSH_ATTRIB(Attack_Slow, int);
