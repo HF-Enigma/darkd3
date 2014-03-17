@@ -409,8 +409,8 @@ struct tObManStorage
 class ObMan  
 { 
 public: 
-    DWORD Data[498];                // 0x000 
-    tObManStorage Storage;          // 0x7C8
+    DWORD Data[490];                // 0x000 
+    tObManStorage Storage;          // 0x7A8
 }; 
 
 //sizeof = 0x4
