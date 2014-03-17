@@ -43,14 +43,15 @@ DWORD CUIManager::EnumUIElements( mapUIElements *pOut /*= NULL*/, bool bVisibleO
 
 	m_Elements.clear();
 
-	CHK_RES(CProcess::Instance().Core.Read(CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)uimgr.component_map, sizeof(comp_map), &comp_map));
 
-	for(DWORD i = 0; i < comp_map.table_size; i++)
+	for(DWORD i = 0; i <= comp_map.mask; i++)
 	{
 		UIComponentMap::Pair pair;
 
-		if(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)comp_map.table +  i*sizeof(UIComponentMap::Pair*)), sizeof(pair), &pair) != ERROR_SUCCESS)
+        DWORD tmp = CProcess::Instance().Core.Read<DWORD>((DWORD)comp_map.table + i*sizeof(UIComponentMap::Pair*));
+		if(tmp == 0 || CProcess::Instance().Core.Read(tmp, sizeof(pair), &pair) != ERROR_SUCCESS)
 			continue;
 
 		//Read linked list nodes
@@ -87,10 +88,10 @@ DWORD CUIManager::EnumUIHandlers( mapUIHandlers *pOut /*= NULL*/ )
 
 	m_Handlers.clear();
 
-	CHK_RES(CProcess::Instance().Core.Read(CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
+	CHK_RES(CProcess::Instance().Core.Read((DWORD)CGlobalData::Instance().ObjMgr.Storage.ui_mgr, sizeof(uimgr), &uimgr));
 	CHK_RES(CProcess::Instance().Core.Read((DWORD)uimgr.handler_map, sizeof(handler_map), &handler_map));
 
-	for(DWORD i = 0; i < handler_map.table_size; i++)
+	for(DWORD i = 0; i < 0x100; i++)
 	{
 		UIHandlerMap::Pair pair;
 
@@ -267,7 +268,7 @@ DWORD CUIManager::GetChildren( UIComponent& element, mapUIElements &out )
 DWORD CUIManager::SetText( UIComponent& element, std::string text )
 {
 	CProcess::Instance().Core.Write(element.text_ptr, text.length() + 1, (PVOID)text.c_str());
-	CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, tb_length), text.length());
+	//CProcess::Instance().Core.Write<int>(element.dwBaseAddr + FIELD_OFFSET(UIComponent, tb_length), text.length());
 
 	return ERROR_SUCCESS;
 }

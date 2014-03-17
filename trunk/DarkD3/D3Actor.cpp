@@ -49,7 +49,7 @@ CD3Actor::CD3Actor( DWORD dwBase, Vec3* playerpos /*= NULL*/, bool bACD/*= true*
 		CProcess::Instance().Core.Read(dwBase, sizeof(RActor), &RActor);
 
 		m_dwBaseRact= dwBase;
-		m_dwGUID	= RActor.id_acd;
+		m_dwGUID	= RActor.id_actor;
 		SnoID		= RActor.id_sno;
 		m_Name		= RActor.Name;
 		m_pos		= RActor.Pos;
@@ -139,7 +139,7 @@ DWORD CD3Actor::GetAttribGroup(tContainer<CAttribGroup>* pct, ULONG guid, CAttri
 	USHORT l = (id >> pct->Bits); 
 	USHORT e = id & ((1 << pct->Bits) - 1); 
 
-	DWORD dwFirst = CProcess::Instance().Core.Read<DWORD>((DWORD)pct->List + l*pct->SizeOf);
+	DWORD dwFirst = CProcess::Instance().Core.Read<DWORD>((DWORD)pct->List + l * pct->SizeOf);
 	DWORD dwSecond = dwFirst + pct->SizeOf * e;
 
 	CHK_RES(CProcess::Instance().Core.Read(dwSecond, sizeof(CAttribGroup), &group));
@@ -222,16 +222,34 @@ DWORD CD3Actor::GetAllAttribs( std::map<AttributeID, ATTRIB_INFO> &out )
 	if(ACD.id_attrib == (DWORD)INVALID_VALUE || GetAttribGroup(&attribs, ACD.id_attrib, group) != ERROR_SUCCESS)
 		return ERROR_INVALID_PARAMETER;
 
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)group.Formula, sizeof(formula), &formula));
+    if(group.flags & 4)
+    {
+	    CHK_RES(CProcess::Instance().Core.Read((DWORD)group.Formula, sizeof(formula), &formula));
+    }
+    else
+    {
+        formula.limit = 0x1FF;
+    }
 
-	for(DWORD x = 0; x < formula.Map.Count; x++) 
+	for(DWORD x = 0; x < formula.limit; x++) 
 	{ 
-		//If map value is invalid
-		if(CProcess::Instance().Core.Read((DWORD)formula.Map.Data[x], sizeof(link), &link) != ERROR_SUCCESS)
-			continue;
+        if(group.flags & 4)
+        {
+		    //If map value is invalid
+		    if(CProcess::Instance().Core.Read(CProcess::Instance().Core.Read<DWORD>((DWORD)formula.array_base + 4 * x), sizeof(link), &link) != ERROR_SUCCESS)
+			    continue;
+        }
+        else
+        {
+            DWORD tmp = CProcess::Instance().Core.Read<DWORD>((DWORD)group.Formula2 + 4 * x);
+            if(CProcess::Instance().Core.Read(tmp, sizeof(link), &link) != ERROR_SUCCESS)
+                continue;
+        }
 
 		//Attribute ID
 		ULONG id = link.AttribIndex & 0xFFF; 
+        if(id == 0)
+            continue;
 
 		if(CGlobalData::Instance().Attributes.find((AttributeID)id) != CGlobalData::Instance().Attributes.end())
 		{
@@ -241,7 +259,7 @@ DWORD CD3Actor::GetAllAttribs( std::map<AttributeID, ATTRIB_INFO> &out )
 			info.type = CGlobalData::Instance().Attributes[(AttributeID)id].type;
 			info.name = CGlobalData::Instance().Attributes[(AttributeID)id].name;
 
-			//Get linked list values
+			// Get linked list values
 			for(;;) 
 			{ 
 				AttribVal val;
@@ -255,7 +273,7 @@ DWORD CD3Actor::GetAllAttribs( std::map<AttributeID, ATTRIB_INFO> &out )
 					break;
 			} 
 
-			//Update attribute if it was already found
+			// Update attribute if it was already found
 			if(out.find(info.id) == out.end())
 				out[info.id] = info;
 			else
@@ -295,16 +313,23 @@ DWORD CD3Actor::GetAttribRaw( BYTE val[4], AttributeID attrib, DWORD param /*= 0
 		return ERROR_INVALID_PARAMETER;
 
 	DWORD attribMask = (DWORD)attrib | param;
-	DWORD IndexMask  = attribMask ^ (attribMask >> 16);
+	DWORD IndexMask  = attribMask ^ ((int)attribMask >> 12);
 
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)group.Formula, sizeof(formula), &formula));
-	CHK_RES(CProcess::Instance().Core.Read((DWORD)formula.Map.Data[formula.Map.Mask & IndexMask], sizeof(link), &link));
-
+    if(group.flags & 4)
+    {
+        CHK_RES(CProcess::Instance().Core.Read((DWORD)group.Formula, sizeof(formula), &formula));
+        CHK_RES(CProcess::Instance().Core.Read(formula.array_base + 4 * (IndexMask & formula.limit), sizeof(link), &link));
+    }
+    else
+    {
+        DWORD tmp = CProcess::Instance().Core.Read<DWORD>((DWORD)group.Formula2 + 4 * (IndexMask & 0xFF));
+        CHK_RES(CProcess::Instance().Core.Read(tmp, sizeof(link), &link));
+    }
+    
 	//First list node
 	if(link.AttribIndex == (LONG)attribMask)
 	{
 		memcpy(val, &link.Value, sizeof(val));
-
 		return ERROR_SUCCESS;
 	}
 
@@ -317,7 +342,6 @@ DWORD CD3Actor::GetAttribRaw( BYTE val[4], AttributeID attrib, DWORD param /*= 0
 		if(link.AttribIndex == (LONG)attribMask)
 		{
 			memcpy(val, &link.Value, sizeof(val));
-
 			return ERROR_SUCCESS;
 		}
 	}

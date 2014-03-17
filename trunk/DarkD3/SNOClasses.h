@@ -162,7 +162,7 @@ public:
 	DWORD pad_01C;				// 0x01C
 	NavMeshSquare* array_ptr;	// 0x020
 	DWORD pad_024;				// 0x024
-	char name[256];				// 0x028
+	//char name[256];				// 0x028
 };
 
 //sizeof = 0x84
@@ -290,7 +290,7 @@ public:
 
 //--------------GameBalance Classes--------------
 
-//sizeof - 0x3A8
+//sizeof 
 class SNOGBHeader
 {
 public:
@@ -298,36 +298,34 @@ public:
 	DWORD unknown_004;				// 0x004
 	DWORD count;					// 0x008
 	SNOGBType type;					// 0x00C
-	char  gbi[0x100];				// 0x010
-	char  xls[0x100];				// 0x110
-	DWORD unknown_0210;				// 0x210
-	DWORD unknown_0214;				// 0x214
-	DataPtr ItemType;				// 0x218
-	DataPtr Item;					// 0x228
-	DataPtr Experience;				// 0x238
-	DataPtr HelpCodes;				// 0x248
-	DataPtr MonsterLevel;			// 0x258
-	DataPtr Affixes;				// 0x268
-	DataPtr Heros;					// 0x278
-	DataPtr MovementStyles;			// 0x288
-	DataPtr Labels;					// 0x298
-	DataPtr LootDistribution;		// 0x2A8
-	DataPtr RareItemNames;			// 0x2B8
-	DataPtr MonsterAffixes;			// 0x2C8
-	DataPtr RareMonsterNames;		// 0x2D8
-	DataPtr SocketedEffects;		// 0x2E8
-	DataPtr ItemEnhancement;		// 0x2F8
-	DataPtr ItemDropTable;			// 0x308
-	DataPtr ItemLevelModifiers;		// 0x318
-	DataPtr QualityClasses;			// 0x328
-	DataPtr Hirelings;				// 0x338
-	DataPtr SetItemBonus;			// 0x348
-	DataPtr EliteModifiers;			// 0x358
-	DataPtr ItemTiers;				// 0x368
-	DataPtr PowerFormula;			// 0x378
-	DataPtr Recipes;				// 0x388
-	DataPtr SAE;					// 0x398
-	//char padding[0x10];			// 0x3A8
+	DWORD unknown_0210;				// 0x
+	DWORD unknown_0214;				// 0x
+	DataPtr ItemType;				// 0x
+	DataPtr Item;					// 0x
+	DataPtr Experience;				// 0x
+	DataPtr HelpCodes;				// 0x
+	DataPtr MonsterLevel;			// 0x
+	DataPtr Affixes;				// 0x
+	DataPtr Heros;					// 0x
+	DataPtr MovementStyles;			// 0x
+	DataPtr Labels;					// 0x
+	DataPtr LootDistribution;		// 0x
+	DataPtr RareItemNames;			// 0x
+	DataPtr MonsterAffixes;			// 0x
+	DataPtr RareMonsterNames;		// 0x
+	DataPtr SocketedEffects;		// 0x
+	DataPtr ItemEnhancement;		// 0x
+	DataPtr ItemDropTable;			// 0x
+	DataPtr ItemLevelModifiers;		// 0x
+	DataPtr QualityClasses;			// 0x
+	DataPtr Hirelings;				// 0x
+	DataPtr SetItemBonus;			// 0x
+	DataPtr EliteModifiers;			// 0x
+	DataPtr ItemTiers;				// 0x
+	DataPtr PowerFormula;			// 0x
+	DataPtr Recipes;				// 0x
+	DataPtr SAE;					// 0x
+	//char padding[0x10];			// 0x
 };
 
 //sizeof = 0x14
@@ -340,68 +338,67 @@ public:
 	DataPtr2 Formula;		// 0x00C
 };
 
-//sizeof =  0x5F8
+//sizeof =  0x708
 class SNOGBItem
 {
 public:
-	DWORD pad0;									// 0x000
-	CHAR  Name[0x100];							// 0x004
-	DWORD SNOActorID;							// 0x104
-	DWORD ItemType1;							// 0x108
-	DWORD Flags;								// 0x10C
-	DWORD I0;									// 0x110
-	DWORD ItemLevel;							// 0x114	
-	DWORD eItem;								// 0x118
-	DWORD I2;									// 0x11C
-	DWORD RandomPropertiesCount;				// 0x120
-	DWORD MaxSockets;							// 0x124
-	DWORD MaxStackAmount;						// 0x128
-	DWORD BaseGoldValue;						// 0x12C
-	DWORD I7;									// 0x130
-	DWORD RequiredLevel;						// 0x134
-	DWORD DurabilityMin;						// 0x138
-	DWORD DurabilityDelta;						// 0x13C
-	DWORD I8;									// 0x140
-	DWORD SNOBaseItem;							// 0x144
-	DWORD SNOSet;								// 0x148
-	DWORD SNOComponentTreasureClass;			// 0x14C
-	DWORD SNOComponentTreasureClassMagic;		// 0x150
-	DWORD SNOComponentTreasureClassRare;		// 0x154
-	DWORD SNORareNamePrefixStringList;			// 0x158
-	DWORD SNORareNameSuffixStringList;			// 0x15C
-	DWORD I15[4];								// 0x160
-	UCHAR pad1[88];								// 0x170
-	float WeaponDamageMin;						// 0x1C8
-	float WeaponDamageDelta;					// 0x1CC
-	UCHAR pad2[84];								// 0x1D0
-	float ArmorValue;							// 0x224
-	float F3;									// 0x228
-	UCHAR pad3[168];							// 0x22C
-	float AttacksPerSecond;						// 0x2D4
-	UCHAR pad4[84];								// 0x2D8
-	float F4;									// 0x32C
-	float F5;									// 0x330
-	UCHAR pad5[104];							// 0x334
-	DWORD SNOSkill0;							// 0x39C
-	DWORD I11;									// 0x3A0
-	DWORD SNOSkill1;							// 0x3A4
-	DWORD I12;									// 0x3A8
-	DWORD SNOSkill2;							// 0x3AC
-	DWORD I13;									// 0x3B0
-	DWORD SNOSkill3;							// 0x3B4
-	DWORD I14;									// 0x3B8
-	UCHAR pad6[44];								// 0x3BC
-	AttribSpec Attributes[16];					// 0x3E8
-	DWORD ItemQuality;							// 0x568
-	DWORD RecipeToGrant[10];					// 0x56C
-	DWORD EnhancementToGrant;					// 0x594
-	DWORD LegendaryAffixFamily[6];				// 0x598
-	DWORD MaxAffixLevel[6];						// 0x5B0
-	DWORD I18[6];								// 0x5C8
-	DWORD GemType;								// 0x5E0
-	DWORD I16;									// 0x5E4
-	DWORD Alpha;								// 0x5E8
-	DWORD pad7[3];  							// 0x5EC
+	CHAR  Name[0x100];							// 0x000
+	DWORD SNOActorID;							// 0x100
+	DWORD ItemType1;							// 0x104
+	DWORD Flags;								// 0x108
+	DWORD I0;									// 0x10C
+	DWORD ItemLevel;							// 0x110	
+	DWORD eItem;								// 0x114
+	DWORD I2;									// 0x118
+	DWORD RandomPropertiesCount;				// 0x11C
+	DWORD MaxSockets;							// 0x120
+	DWORD MaxStackAmount;						// 0x124
+	DWORD BaseGoldValue;						// 0x128
+	DWORD I7;									// 0x12C
+	DWORD RequiredLevel;						// 0x130
+	DWORD DurabilityMin;						// 0x134
+	DWORD DurabilityDelta;						// 0x138
+	DWORD I8;									// 0x13C
+	DWORD SNOBaseItem;							// 0x140
+	DWORD SNOSet;								// 0x144
+	DWORD SNOComponentTreasureClass;			// 0x148
+	DWORD SNOComponentTreasureClassMagic;		// 0x14C
+	DWORD SNOComponentTreasureClassRare;		// 0x150
+	DWORD SNORareNamePrefixStringList;			// 0x154
+	DWORD SNORareNameSuffixStringList;			// 0x158
+	DWORD I15[4];								// 0x15C
+	UCHAR pad1[88];								// 0x16C
+	float WeaponDamageMin;						// 0x
+	float WeaponDamageDelta;					// 0x
+	UCHAR pad2[84];								// 0x
+	float ArmorValue;							// 0x
+	float F3;									// 0x
+	UCHAR pad3[168];							// 0x
+	float AttacksPerSecond;						// 0x
+	UCHAR pad4[84];								// 0x
+	float F4;									// 0x
+	float F5;									// 0x
+	UCHAR pad5[104];							// 0x
+	DWORD SNOSkill0;							// 0x
+	DWORD I11;									// 0x
+	DWORD SNOSkill1;							// 0x
+	DWORD I12;									// 0x
+	DWORD SNOSkill2;							// 0x
+	DWORD I13;									// 0x
+	DWORD SNOSkill3;							// 0x
+	DWORD I14;									// 0x
+	UCHAR pad6[44];								// 0x
+	AttribSpec Attributes[16];					// 0x
+	DWORD ItemQuality;							// 0x
+	DWORD RecipeToGrant[10];					// 0x
+	DWORD EnhancementToGrant;					// 0x
+	DWORD LegendaryAffixFamily[6];				// 0x
+	DWORD MaxAffixLevel[6];						// 0x
+	DWORD I18[6];								// 0x
+	DWORD GemType;								// 0x
+	DWORD I16;									// 0x
+	DWORD Alpha;								// 0x
+	DWORD pad7[72];  							// 0x
 };
 
 #endif//_GB_CLASSES_H_

@@ -752,6 +752,13 @@ namespace ds_utils
                 i++;
     }
 
+    void CDSString::replace_spaces( wchar_t newsym )
+    {
+        for (size_t i = 0; i < m_length; i++)
+            if (m_pwData[i] == L' ')
+                m_pwData[i] = newsym;
+    }
+
     void CDSString::insert( size_t pos, CDSString& str )
     {
         return insert(pos, str.data());

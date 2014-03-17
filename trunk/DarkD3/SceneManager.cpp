@@ -24,7 +24,7 @@ CSceneManager::~CSceneManager(void)
 */
 DWORD CSceneManager::EnumScenes( mapWorlds *pOut /*= NULL*/ )
 {
-	tContainer<SceneRaw> tScenes;
+	tContainer2<SceneRaw> tScenes;
 
 	//Refresh SNO scene records
 	CSNOManager::Instance().RefreshSNOMemRecords();

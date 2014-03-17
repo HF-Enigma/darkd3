@@ -81,6 +81,21 @@ int __cdecl CD3DPresentDetour::CallOriginal( IDirect3DDevice9 *device,
 */
 void CD3DPresentDetour::HandleCall()
 {
+    // Debug data
+    //////////////////////////////////////////////////////////////////////////
+    CCharMgr* pMgr = *(CCharMgr**)0x183E900;
+    CMnagers* pBMgr = *(CMnagers**)0x1833EC4;
+
+
+    /*if(pMgr)
+    {
+        for(int i = 0; i < pMgr->count; ++i)
+        {
+            int level = pMgr->pCharList[i].chr.level;
+
+        }
+    }*/
+    //////////////////////////////////////////////////////////////////////////
 	if(m_pCallData && m_pCallData->valid && m_pCallData->state == CallState_Pending)
 	{
 		m_pCallData->state = CallState_Executing;
@@ -141,7 +156,7 @@ void CD3DPresentDetour::ClickSQUICall( const CALL& callparams, DWORD& retval )
 	DWORD dwTmp = 0;
 
 	//Get class
-	CallMethodAsm(NULL, FUNC_UI_GET_PTR, CC_cdecl, 1, callparams.arg1 + FIELD_OFFSET(UIComponent, val_C90));
+	CallMethodAsm(NULL, FUNC_UI_GET_PTR, CC_cdecl, 1, callparams.arg1 + FIELD_OFFSET(UIComponent, val_C80));
 
 	__asm
 	{
