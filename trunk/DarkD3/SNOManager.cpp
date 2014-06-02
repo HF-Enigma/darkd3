@@ -38,10 +38,6 @@ DWORD CSNOManager::InitDB()
 */
 DWORD CSNOManager::RefreshSNOMemRecords()
 {
-	//mapSNO actors2;
-	CHK_RES(ParseMemorySNO(SNOGroup_Scene_Addr, Scenes));
-	//ParseMemorySNO(SNOGroup_Actors_Addr, actors2);
-
 	return ERROR_SUCCESS;
 }
 
@@ -106,6 +102,17 @@ DWORD CSNOManager::BuildDBFromFile( std::string strMPQfile, float *pProgress /*=
 						memcpy(&mob, out_buf + 0x10, sizeof(mob));
 
 						Mobs[mob.header.id] = mob;
+					}
+					break;
+
+                //Get scene SNO from file
+				case SNOGroup_Scene:
+					{
+						SNOScene scn;
+
+                        memcpy( &scn, out_buf + 0x10, sizeof(scn) );
+
+                        Scns[scn.header.id] = scn;
 					}
 					break;
 
@@ -239,25 +246,25 @@ void CSNOManager::BuildItemsDB()
 	DWORD dwOffset;
 
     //Get GameBalance file addresses in memory (seems they are are always fully loaded)
-	ParseMemorySNO(SNOGroup_GameBalance_Addr, GameBalance);
+    ParseMemorySNO( SNOGroup_GameBalance_Addr, GameBalance );
 
     //Iterate through GameBalance files
-	for(mapSNO::iterator iter = GameBalance.begin(); iter != GameBalance.end(); iter++)
+    for (mapSNO::iterator iter = GameBalance.begin(); iter != GameBalance.end(); iter++)
 	{
-		CProcess::Instance().Core.Read(iter->second, sizeof(header), &header);
+        CProcess::Instance().Core.Read( iter->second, sizeof(header), &header );
 
         //File contains items data
-		if(header.type == GBType_Items)
+        if (header.type == GBType_Items)
 		{
             //Read serialized records
-			for (dwOffset = header.Item.mem_offset; dwOffset < header.Item.mem_offset + header.Item.size; dwOffset += sizeof(SNOGBItem))
+            for (dwOffset = header.Item.mem_offset; dwOffset < header.Item.mem_offset + header.Item.size; dwOffset += sizeof(SNOGBItem))
 			{
-				SNOGBItem item;
+                SNOGBItem item;
 
-				CProcess::Instance().Core.Read(dwOffset, sizeof(item), &item);
+                CProcess::Instance().Core.Read( dwOffset, sizeof(item), &item );
 
                 //Store item by hash (gbid)
-				Items[CGlobalData::Instance().HashStringLC(item.Name)] = item;
+                Items[CGlobalData::Instance().HashStringLC( item.Name )] = item;
 			}
 		}
 	}
@@ -277,10 +284,7 @@ DWORD CSNOManager::SaveDB()
 	DWORD dwDataOffset = 0;
 	DWORD dwSize = 0;
 
-	std::map<DWORD, SNOActor>::iterator ActIter;
-	std::map<DWORD, SNOMonster>::iterator MobIter;
-
-	file.Create(DB_FILENAME);
+    file.Create( DB_FILENAME );
 
 	header.cookie = DB_COOKIE;
 
@@ -290,34 +294,44 @@ DWORD CSNOManager::SaveDB()
 	header.mobs.file_offset = header.actors.file_offset + header.actors.count * sizeof(SNOActor);
 	header.mobs.count = Mobs.size();
 
+    header.mobs.file_offset = header.mobs.file_offset + header.mobs.count * sizeof(SNOScene);
+    header.scenes.count = Scns.size();
+
 	header.items.file_offset = (DWORD)INVALID_VALUE;
 	header.items.count = 0;
 
 	file.WriteHeader(header);
 
     //Uncompressed data size
-	dwSize = Actors.size() * sizeof(SNOActor) + Mobs.size() * sizeof(SNOMonster);
+    dwSize = Actors.size() * sizeof(SNOActor) + Mobs.size() * sizeof(SNOMonster)+Scns.size() *sizeof(SNOScene);
 
-	data.Allocate(dwSize);
+    data.Allocate( dwSize );
 
 	//Records offsets in file
-	for(ActIter = Actors.begin(); ActIter != Actors.end(); ActIter++)
+    for (auto ActIter = Actors.begin(); ActIter != Actors.end(); ++ActIter)
 	{
 		memcpy(data.Data() + dwDataOffset, &ActIter->second, sizeof(SNOActor));
 
 		dwDataOffset += sizeof(SNOActor);
 	}
 
-	for(MobIter = Mobs.begin(); MobIter != Mobs.end(); MobIter++)
+    for (auto MobIter = Mobs.begin(); MobIter != Mobs.end(); ++MobIter)
 	{
 		memcpy(data.Data() + dwDataOffset, &MobIter->second, sizeof(SNOMonster));
 
 		dwDataOffset += sizeof(SNOMonster);
 	}
 
-	CCompressor::Compress(data, dwSize);
+    for (auto scnInter = Scns.begin(); scnInter != Scns.end(); ++scnInter)
+    {
+        memcpy( data.Data() + dwDataOffset, &scnInter->second, sizeof(SNOScene) );
 
-	file.Write(sizeof(header), data, dwSize);
+        dwDataOffset += sizeof(SNOScene);
+    }
+
+    CCompressor::Compress( data, dwSize );
+
+    file.Write( sizeof(header), data, dwSize );
 
 	return ERROR_SUCCESS;
 }
@@ -333,6 +347,7 @@ DWORD CSNOManager::LoadDB()
 	DBHEADER header = {0};
 	DWORD dwDataSize = 0;
 	DWORD dwReadSize = 0;
+    DWORD ofst = 0;
 
 	ds_utils::ds_memory::CDSWinDataBlock data;
 	ds_utils::ds_fs::CDSWinFile<DBHEADER> file;
@@ -349,6 +364,7 @@ DWORD CSNOManager::LoadDB()
     //Size of uncompressed data
 	dwDataSize = header.actors.count * sizeof(SNOActor) 
 			   + header.mobs.count * sizeof(SNOMonster) 
+               + header.scenes.count * sizeof(SNOScene)
 			   + header.items.count * sizeof(SNOGBItem);
 
 	dwReadSize = (DWORD)file.Size() - sizeof(header);
@@ -361,34 +377,49 @@ DWORD CSNOManager::LoadDB()
 	}
 
     //Compressed data
-	if(!file.Read(sizeof(header), data, dwReadSize))
+    if (!file.Read( sizeof(header), data, dwReadSize ))
 		return file.LastError();
 
 	file.Close();
 
-	CCompressor::Decompress(data, dwReadSize, dwDataSize);
+    CCompressor::Decompress( data, dwReadSize, dwDataSize );
 
 	if(dwReadSize != dwDataSize)
 		return ERROR_INVALID_DATA;
 
     //Get corresponding records from data
-	for(DWORD i=0; i<header.actors.count; i++)
+    for (DWORD i = 0; i < header.actors.count; i++)
 	{   
 		SNOActor actor;
 
-		RtlCopyMemory(&actor, data + i*sizeof(SNOActor), sizeof(SNOActor));    
+        RtlCopyMemory( &actor, data + ofst, sizeof(SNOActor) );
 
 		Actors[actor.header.id] = actor;
+
+        ofst += sizeof(SNOActor);
 	}
 
-	for(DWORD i=0; i<header.mobs.count; i++)
+    for (DWORD i = 0; i < header.mobs.count; i++)
 	{   
 		SNOMonster mob;
 
-		RtlCopyMemory(&mob, data + header.actors.count*sizeof(SNOActor) + i*sizeof(SNOMonster), sizeof(SNOMonster));    
+        RtlCopyMemory( &mob, data + ofst, sizeof(SNOMonster) );
 
 		Mobs[mob.header.id] = mob;
+
+        ofst += sizeof(SNOMonster);
 	}
+
+    for (DWORD i = 0; i < header.scenes.count; i++)
+    {
+        SNOScene scn;
+
+        RtlCopyMemory( &scn, data + ofst, sizeof(SNOScene) );
+
+        Scns[scn.header.id] = scn;
+
+        ofst += sizeof(SNOScene);
+    }
 
 	m_bInitialized = true;
 

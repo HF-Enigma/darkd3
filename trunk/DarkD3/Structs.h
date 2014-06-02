@@ -409,8 +409,10 @@ struct tObManStorage
 class ObMan  
 { 
 public: 
-    DWORD Data[490];                // 0x000 
-    tObManStorage Storage;          // 0x7A8
+    DWORD Data[484];                // 0x000 
+    void* pGlobals;                 // 0x790
+    DWORD unk;                      // 0x794
+    tObManStorage Storage;          // 0x798
 }; 
 
 //sizeof = 0x4
@@ -712,6 +714,47 @@ public:
     void* unk_000[4];           // 0x000
     CBNetService* ptr;          // 0x010
     void* unk_014[3];           // 0x014
+};
+
+// sizeof = 0xA48
+class CBuff
+{
+public:
+    PowerIds id;            // 0x000
+    DWORD unk0;             // 0x004
+    void* PlayerData;       // 0x008
+    int AnnId;              // 0x00C
+    int duration;           // 0x010
+    int stacks;             // 0x014
+    int cancellable;        // 0x018
+    DWORD unk1[651];        // 0x01C
+};
+
+// sizeof = 0x10
+template<typename T>
+struct DLinkedList
+{
+    struct Node
+    {
+        T val;
+        Node* prev;
+        Node* next;
+    };
+
+    Node* first;
+    Node* last;
+    int count;
+    DWORD unk;
+};
+
+// sizeOf = 0x6C
+class CBuffManager
+{
+public:
+    DWORD unk0[7];              // 0x004
+    DLinkedList<CBuff> Buffs;   // 0x01C
+    DWORD unk1;                 // 0x02C
+    DLinkedList<CBuff> Debuffs; // 0x030
 };
 
 //-------------------------------------

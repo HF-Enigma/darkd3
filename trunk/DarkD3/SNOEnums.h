@@ -122,9 +122,9 @@ enum NavCellFlagsW : WORD
 
 enum SNOGroup : int
 {
-	SNOGroup_Actor		= 0x010B,
-	SNOGroup_Monster	= 0x0494,
-	SNOGroup_Scene		= 0x99,
+	SNOGroup_Actor		= 0x0113,
+	SNOGroup_Monster	= 0x0544,
+	SNOGroup_Scene		= 0x9E,
 };
 
 //SNO location in memory
