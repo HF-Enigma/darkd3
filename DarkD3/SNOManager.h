@@ -31,6 +31,7 @@ typedef struct _DBHEADER
 	DWORD cookie;
 	DBRECHEADER actors;
 	DBRECHEADER mobs;
+    DBRECHEADER scenes;
 	DBRECHEADER items;
 }DBHEADER, *PDBHEADER;
 
@@ -109,6 +110,7 @@ public:
 	std::map<DWORD, SNOGBItem>	Items;
 	std::map<DWORD, SNOActor>	Actors;
 	std::map<DWORD, SNOMonster>	Mobs;
+    std::map<DWORD, SNOScene>	Scns;
 
 private:
 	CSNOManager(){ };

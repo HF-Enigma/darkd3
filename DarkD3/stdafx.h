@@ -17,7 +17,7 @@
 #ifdef RCALL_TYPE
 	#error Only one Remote call type must be selected
 #else
-	#define RCALL_TYPE	USE_NOTHING
+#define RCALL_TYPE	USE_NOTHING
 #endif
 
 //Some unnecessary warnings

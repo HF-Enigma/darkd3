@@ -402,7 +402,7 @@ DWORD CUIManager::ClickElement( UIComponent& element )
 		}
 	}
 
-	CProcess::Instance().Core.Write(CGlobalData::Instance().ObjMgr.Storage.ui_mgr + FIELD_OFFSET(UIManager, u_1), sizeof(UIReference), &element.self);
+	CProcess::Instance().Core.Write((DWORD)CGlobalData::Instance().ObjMgr.Storage.ui_mgr + FIELD_OFFSET(UIManager, u_1), sizeof(UIReference), &element.self);
 	CProcess::Instance().RemoteCall(pCopy, dwFuncSize);
 
 #elif(RCALL_TYPE == USE_DLL)
@@ -413,7 +413,7 @@ DWORD CUIManager::ClickElement( UIComponent& element )
 	call.valid = VALID_CALL;
 	call.state = CallState_Pending;
 	call.type = CallType_ClickUI;
-	call.arg1 = element.click_handler;
+    call.arg1 = CProcess::Instance().Core.Read<DWORD>( element.click_handler );
 	call.arg2 = element.dwBaseAddr + FIELD_OFFSET(UIComponent, self);
 
 	CProcess::Instance().shared.DoCall(call, ret);

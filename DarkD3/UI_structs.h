@@ -141,9 +141,9 @@ struct UIComponent
     DWORD flag1;								// 0x4B4
     float pad_4E8[8];							// 0x4B8
     UIRect rect;								// 0x4D8
-    float pad_518[15];							// 0x4E8
-    DWORD click_handler;						// 0x524
-    DWORD pad_558[3];							// 0x528
+    float pad_518[16];							// 0x4E8
+    DWORD click_handler;						// 0x528
+    DWORD pad_558[2];							// 0x528
     DWORD mouse_over;							// 0x534
     DWORD pad_568[2];                           // 0x538
     DWORD rclick_handler;                       // 0x540
@@ -191,10 +191,10 @@ typedef HashTable<DWORD, UIHandler *> UIHandlerMap;
 
 struct UIManager
 {
-	UIComponentMap *component_map;      // 0x000
-	void *u_0;                          // 0x004
-	UIReference u_1[6];                 // 0x008
-	DWORD u_2[1688];
+	UIComponentMap *component_map;      // 0x010
+	void *u_1;                          // 0x004
+	UIReference u_2[6];                 // 0x008
+	DWORD u_3[1688];
 	UIHandlerMap *handler_map;
 };
 
